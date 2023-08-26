@@ -145,18 +145,6 @@ void loop() {
       }
 }
 
-void display_frame(uint32_t const frame_data[256]){
-  int count = 0;
-  FastLED.clear();
-  for(int i = 0; i < 16; i++) {
-    for(int j = 0; j < 16; j++){
-      leds[graphic.XY(j, i)] = frame_data[count];
-      count++;
-    }
-  }
-  FastLED.show(); 
-}
-
 void display(){
   FastLED.clear();
   for(int i = 0; i < 16; i++) {
