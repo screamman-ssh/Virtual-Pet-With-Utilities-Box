@@ -22,11 +22,10 @@ void setup() {
   graphic.setBackground(background_data[0]);
 }
 unsigned long last_time, ignore_time;
-uint8_t behave;
+uint8_t behave, spec_behave;
 uint8_t frame, rand_frame;
 uint8_t menu = 0;
 uint8_t mode;
-bool food;
 void loop() { 
   // Serial.print(digitalRead(32));
   // Serial.print(digitalRead(33));
@@ -36,29 +35,31 @@ void loop() {
   Serial.print("Free Heap Memory: ");
   Serial.print(freeHeap);
   Serial.println(" bytes");
+
+  graphic.clear();
   if((millis() - ignore_time) > 10000){
     mode = 1;
-    if(food){
+    if(spec_behave){
       if((behave == 4 && frame > 15) || (behave == 5 && frame > 15)){
         behave = behave == 4 ? 6 : 7;
         rand_frame = 14;
         frame = 0;
       }else if(frame == rand_frame){
         if(behave == 6 || behave == 7){
-          behave = 8;
+          behave = spec_behave == 1 ? 8 : 9;
           rand_frame = 50;
           frame = 0;
         }else{
-          food = false;
+          spec_behave = 0;
         }
-      }else if(behave != 8 && behave != 6 && behave != 7){
-        behave = 8;
-        rand_frame = 50;
+      }else if(behave != 8 && behave != 9 && behave != 6 && behave != 7){
+        behave = spec_behave == 1 ? 8 : 9;
+        rand_frame = 60;
         frame = 0;
       }
     }
 
-    if((frame == rand_frame) && !food){
+    if((frame == rand_frame) && !spec_behave){
       if(behave == 4 || behave == 5){
         behave = behave == 4 ? 6 : 7;
         rand_frame = 16;
@@ -73,7 +74,7 @@ void loop() {
     }
     switch(behave){
       case 0 : graphic.draw(cat_sit_data[frame % CAT_SIT_FRAME], 0, 0); break;
-      case 1 : graphic.draw(cat_sit_data[frame % CAT_SIT_FRAME], 0, 0); break;
+      case 1 : graphic.draw(cat_lay_data[frame % CAT_LAY_FRAME], 0, 0); break;
       case 2 : graphic.draw(cat_stand_r_data[frame % CAT_STAND_R_FRAME], 0, 0); break;
       case 3 : graphic.draw(cat_stand_l_data[frame % CAT_STAND_L_FRAME], 0, 0); break;
       case 4 :
@@ -82,8 +83,6 @@ void loop() {
                   graphic.draw(cat_walk_r_data[frame], 0, 0);
                 else
                   graphic.draw(cat_walk_r_data[5 + (frame % 4)], frame - 5, 0);
-              }else{
-                graphic.draw(background_data[0], 0, 0);
               }
               break;
       case 5 : 
@@ -92,13 +91,13 @@ void loop() {
                   graphic.draw(cat_walk_l_data[frame], 0, 0);
                 else
                   graphic.draw(cat_walk_l_data[5 + (frame % 4)], -(frame - 5) - 1, 0);
-              }else{
-                graphic.draw(background_data[0], 0, 0);
               }
               break;
       case 6 : graphic.draw(cat_walk_back_r_data[frame % CAT_WALK_BACK_R_FRAME], (16 - frame), 0); break;
       case 7 : graphic.draw(cat_walk_back_l_data[frame % CAT_WALK_BACK_L_FRAME], -(16 - frame), 0); break;
-      // case 8 : display_frame(cat_eat_data[frame % 4]); break;
+      case 8 : graphic.draw(cat_eat_data[frame % CAT_EAT_FRAME], 0, 0); break;
+      case 9 : graphic.draw(cat_love_data[frame % CAT_LOVE_FRAME], 0, 0); break;
+      case 10 : graphic.draw(cat_sleep_data[frame % CAT_SLEEP_FRAME], 0, 0); break;
     }
     display();
     frame++;
@@ -127,6 +126,8 @@ void loop() {
           if(!mode){
             menu < 5 ? menu++ : menu = 0;
             ignore_time = millis();
+          }else{
+            spec_behave = 2;
           }
         }
         if(!digitalRead(34)){
@@ -134,7 +135,7 @@ void loop() {
             menu > 0 ? menu-- : menu = 5;
             ignore_time = millis();
           }else{
-            food = true;
+            spec_behave = 1;
           }
         }
         if(!digitalRead(35)){

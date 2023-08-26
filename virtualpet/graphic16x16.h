@@ -11,6 +11,7 @@ class Graphic16x16{
     void setBackground(uint32_t const background[256]);
     void setBackground(uint32_t color);
     void draw(uint32_t const object[256], int8_t x, int8_t y);
+    void clear();
 };
 
 #endif
