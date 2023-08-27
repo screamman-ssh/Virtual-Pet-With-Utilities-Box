@@ -25,7 +25,7 @@ uint8_t Graphic16x16::XY(uint8_t x, uint8_t y) {
   return j;
 }
 
-void Graphic16x16::setBackground(uint32_t const background[256]){
+void Graphic16x16::setBackground(uint32_t const *background){
   int count = 0;
   for(int i = 0; i < 16; i++) {
     for(int j = 0; j < 16; j++){
@@ -36,7 +36,6 @@ void Graphic16x16::setBackground(uint32_t const background[256]){
   }
 }
 
-//overload
 void Graphic16x16::setBackground(uint32_t color){
   int count = 0;
   for(int i = 0; i < 16; i++) {
@@ -48,24 +47,50 @@ void Graphic16x16::setBackground(uint32_t color){
   }
 }
 
-void Graphic16x16::draw(uint32_t const object[256], int8_t x, int8_t y){
+void Graphic16x16::draw(uint32_t const *object, int8_t x, int8_t y){
   int count = 0;
-  count = 0;
   for(int i = 0; i < 16; i++) {
     for(int j = 0; j < 16; j++){
       if(x < 0 || y < 0){
         if(i >= abs(y) && j >= abs(x))
-          if(object[count] != 0)
+          if(object[count])
             MAIN_FRAME[XY(j + x, i + y)] = object[count];
       }else{
         if(i < (16 - y) && j < (16 - x))
-          if(object[count] != 0)
+          if(object[count])
             MAIN_FRAME[XY(j + x, i + y)] = object[count];
       }
       count++;
     }
   }
 }
+
+void Graphic16x16::draw(uint32_t const *object, uint8_t r, int8_t c, int8_t x, int8_t y){
+  int count = 0;
+  for(int i = 0; i < r; i++) {
+    for(int j = 0; j < c; j++){
+      if(object[count])
+        MAIN_FRAME[XY(j + x, i + y)] = object[count];
+      count++;
+    }
+  }
+}
+
+void Graphic16x16::draw(uint32_t color, int8_t x, int8_t y){
+  MAIN_FRAME[XY(x, y)] = color;
+}
+
+void Graphic16x16::drawWithColor(uint32_t const *object, uint32_t color, uint8_t r, int8_t c, int8_t x, int8_t y){
+  int count = 0;
+  for(int i = 0; i < r; i++) {
+    for(int j = 0; j < c; j++){
+      if(object[count])
+        MAIN_FRAME[XY(j + x, i + y)] = color;
+      count++;
+    }
+  }
+}
+
 
 void Graphic16x16::clear(){
   int count = 0;

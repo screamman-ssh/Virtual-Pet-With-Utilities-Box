@@ -156,3 +156,13 @@ void display(){
   FastLED.show(); 
 }
 
+void display(uint32_t *frame){
+  FastLED.clear();
+  for(int i = 0; i < 16; i++) {
+    for(int j = 0; j < 16; j++){
+      leds[graphic.XY(j, i)] = frame[graphic.XY(j, i)];
+    }
+  }
+  FastLED.show(); 
+}
+
