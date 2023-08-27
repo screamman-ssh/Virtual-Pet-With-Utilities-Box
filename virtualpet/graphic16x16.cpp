@@ -51,15 +51,8 @@ void Graphic16x16::draw(uint32_t const *object, int8_t x, int8_t y){
   int count = 0;
   for(int i = 0; i < 16; i++) {
     for(int j = 0; j < 16; j++){
-      if(x < 0 || y < 0){
-        if(i >= abs(y) && j >= abs(x))
-          if(object[count])
-            MAIN_FRAME[XY(j + x, i + y)] = object[count];
-      }else{
-        if(i < (16 - y) && j < (16 - x))
-          if(object[count])
-            MAIN_FRAME[XY(j + x, i + y)] = object[count];
-      }
+      if(object[count] && ((j + x) < 16 && (j + x) >= 0) && ((i + y) < 16 && (i + y) >= 0))
+        MAIN_FRAME[XY(j + x, i + y)] = object[count];
       count++;
     }
   }
@@ -69,7 +62,7 @@ void Graphic16x16::draw(uint32_t const *object, uint8_t r, int8_t c, int8_t x, i
   int count = 0;
   for(int i = 0; i < r; i++) {
     for(int j = 0; j < c; j++){
-      if(object[count])
+      if(object[count] && ((j + x) < 16 && (j + x) >= 0) && ((i + y) < 16 && (i + y) >= 0))
         MAIN_FRAME[XY(j + x, i + y)] = object[count];
       count++;
     }
