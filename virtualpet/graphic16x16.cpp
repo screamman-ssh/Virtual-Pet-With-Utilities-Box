@@ -73,7 +73,7 @@ void Graphic16x16::draw(uint32_t color, int8_t x, int8_t y){
   MAIN_FRAME[XY(x, y)] = color;
 }
 
-void Graphic16x16::drawWithColor(uint32_t const *object, uint32_t color, uint8_t r, int8_t c, int8_t x, int8_t y){
+void Graphic16x16::drawWithColor(uint8_t const *object, uint32_t color, uint8_t r, int8_t c, int8_t x, int8_t y){
   int count = 0;
   for(int i = 0; i < r; i++) {
     for(int j = 0; j < c; j++){

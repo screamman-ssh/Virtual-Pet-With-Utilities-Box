@@ -13,7 +13,7 @@ class Graphic16x16{
     void draw(uint32_t const *object, int8_t x, int8_t y);
     void draw(uint32_t const *object, uint8_t r, int8_t c, int8_t x, int8_t y);
     void draw(uint32_t color, int8_t x, int8_t y);
-    void drawWithColor(uint32_t const *object, uint32_t color, uint8_t r, int8_t c, int8_t x, int8_t y);
+    void drawWithColor(uint8_t const *object, uint32_t color, uint8_t r, int8_t c, int8_t x, int8_t y);
     void clear();
 };
 
