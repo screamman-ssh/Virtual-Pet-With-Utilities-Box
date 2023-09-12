@@ -16,14 +16,16 @@ void setup() {
   pinMode(34, INPUT);
   pinMode(35, INPUT);
   FastLED.setBrightness(bright);
-  Serial.begin(115200);
+  //Serial.begin(115200);
+  graphic.setBackground((uint32_t) 0x00000000);
 }
 unsigned long lasttime;
 bool blink = true;
 void loop() {
+  graphic.clear();
   graphic.drawWithColor(number3x5_data[2],0xffeaeaea,5,3,4,2);
   graphic.drawWithColor(number3x5_data[0],0xffeaeaea,5,3,7,2);
-  if ((millis()-lasttime )> 1000){
+  if((millis()-lasttime )> 1000){
     lasttime = millis();
     blink = !blink;
   }
@@ -31,4 +33,15 @@ void loop() {
   graphic.draw(blink? 0xffeaeaea :0x000000 ,7,7);
   graphic.drawWithColor(number3x5_data[1],0xffeaeaea,5,3,4,9);
   graphic.drawWithColor(number3x5_data[4],0xffeaeaea,5,3,7,9);
+  delay(50);
+  display();
+}
+void display(){
+  FastLED.clear();
+  for(int i = 0; i < 16; i++) {
+    for(int j = 0; j < 16; j++){
+      leds[graphic.XY(j, i)] = graphic.MAIN_FRAME[graphic.XY(j, i)];
+    }
+  }
+  FastLED.show(); 
 }

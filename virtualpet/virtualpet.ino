@@ -112,7 +112,7 @@ void loop() {
     }
     display();
     frame++;
-    energyStatus > 0 ? energyStatus -= 0.1 : energyStatus = 0;
+    energyStatus > 0 ? energyStatus -= 0.001 : energyStatus = 0;
     delay(150);
    }else{ 
      if(mode == 0){
