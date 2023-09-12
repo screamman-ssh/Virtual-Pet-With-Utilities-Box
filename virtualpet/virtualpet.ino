@@ -52,14 +52,14 @@ void loop() {
       }else if(frame == rand_frame){
         if(behave == 6 || behave == 7){
           behave = spec_behave == 1 ? 8 : 9;
-          rand_frame = 50;
+          rand_frame = spec_behave == 1? (100 - ceil(energyStatus)): 60;
           frame = 0;
         }else{
           spec_behave = 0;
         }
       }else if(behave != 8 && behave != 9 && behave != 6 && behave != 7){
         behave = spec_behave == 1 ? 8 : 9;
-        rand_frame = 60;
+        rand_frame = spec_behave == 1? (100 - ceil(energyStatus)): 60;
         frame = 0;
       }
     }
@@ -77,36 +77,42 @@ void loop() {
       }
       frame = 0;
     }
+
+    if(energyStatus == 0 & behave != 8){
+      behave = 10;
+      rand_frame += 1;
+    }
+
     switch(behave){
-      case 0 : graphic.draw(cat_sit_data[frame % CAT_SIT_FRAME], 0, 0); break;
-      case 1 : graphic.draw(cat_lay_data[frame % CAT_LAY_FRAME], 0, 0); break;
-      case 2 : graphic.draw(cat_stand_r_data[frame % CAT_STAND_R_FRAME], 0, 0); break;
-      case 3 : graphic.draw(cat_stand_l_data[frame % CAT_STAND_L_FRAME], 0, 0); break;
+      case 0 : graphic.draw(isom_cat_sit_data[frame % CAT_SIT_FRAME], 0, 0); break;
+      case 1 : graphic.draw(isom_cat_lay_data[frame % CAT_LAY_FRAME], 0, 0); break;
+      case 2 : graphic.draw(isom_cat_stand_r_data[frame % CAT_STAND_R_FRAME], 0, 0); break;
+      case 3 : graphic.draw(isom_cat_stand_l_data[frame % CAT_STAND_L_FRAME], 0, 0); break;
       case 4 :
               if(frame < 16){
                 if(frame < 5)
-                  graphic.draw(cat_walk_r_data[frame], 0, 0);
+                  graphic.draw(isom_cat_walk_r_data[frame], 0, 0);
                 else
-                  graphic.draw(cat_walk_r_data[5 + (frame % 4)], frame - 5, 0);
+                  graphic.draw(isom_cat_walk_r_data[5 + (frame % 4)], frame - 5, 0);
               }
               break;
       case 5 : 
               if(frame < 16){
                 if(frame < 5)
-                  graphic.draw(cat_walk_l_data[frame], 0, 0);
+                  graphic.draw(isom_cat_walk_l_data[frame], 0, 0);
                 else
-                  graphic.draw(cat_walk_l_data[5 + (frame % 4)], -(frame - 5) - 1, 0);
+                  graphic.draw(isom_cat_walk_l_data[5 + (frame % 4)], -(frame - 5) - 1, 0);
               }
               break;
-      case 6 : graphic.draw(cat_walk_back_r_data[frame % CAT_WALK_BACK_R_FRAME], (16 - frame), 0); break;
-      case 7 : graphic.draw(cat_walk_back_l_data[frame % CAT_WALK_BACK_L_FRAME], -(16 - frame), 0); break;
-      case 8 : graphic.draw(cat_eat_data[frame % CAT_EAT_FRAME], 0, 0); break;
-      case 9 : graphic.draw(cat_love_data[frame % CAT_LOVE_FRAME], 0, 0); break;
-      case 10 : graphic.draw(cat_sleep_data[frame % CAT_SLEEP_FRAME], 0, 0); break;
+      case 6 : graphic.draw(isom_cat_walk_back_r_data[frame % CAT_WALK_BACK_R_FRAME], (16 - frame), 0); break;
+      case 7 : graphic.draw(isom_cat_walk_back_l_data[frame % CAT_WALK_BACK_L_FRAME], -(16 - frame), 0); break;
+      case 8 : graphic.draw(isom_cat_eat_data[frame % CAT_EAT_FRAME], 0, 0); energyStatus < 100 ? energyStatus += 1 : energyStatus = 100; break;
+      case 9 : graphic.draw(isom_cat_love_data[frame % CAT_LOVE_FRAME], 0, 0); break;
+      case 10 : graphic.draw(isom_cat_sleep_data[frame % CAT_SLEEP_FRAME], 0, 0); break;
     }
     display();
     frame++;
-    energyStatus -= 0.001;
+    energyStatus > 0 ? energyStatus -= 0.1 : energyStatus = 0;
     delay(150);
    }else{ 
      if(mode == 0){
