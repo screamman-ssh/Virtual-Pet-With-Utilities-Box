@@ -27,8 +27,8 @@ void loop() {
     lasttime = millis();
     blink = !blink;
   }
-  graphic.draw(blink? 0xffeaeaea :0x000000 ,10,7);
-  graphic.drawWithColor(number3x5_data[1],0xffeaeaea,5,3,12,2);
+  graphic.draw(blink? 0xffeaeaea :0x000000 ,10,2);
+  graphic.drawWithColor(alphabet3x5_data[2],0xffeaeaea,5,3,12,2);
   delay(50);
   display();
 }
