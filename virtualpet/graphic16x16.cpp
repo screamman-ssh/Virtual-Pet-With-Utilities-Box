@@ -1,4 +1,24 @@
-#include "graphic16x16.h"
+#include "graphic16x16.h"     
+#include "FastLED.h"
+#define NUM_LEDS 256
+#define DATA_PIN 14
+CRGB leds[NUM_LEDS];
+unsigned int bright = 50;
+
+void Graphic16x16::setup(){
+  FastLED.addLeds<WS2812B, DATA_PIN, GBR>(leds, NUM_LEDS);
+  FastLED.setBrightness(bright);
+}
+
+void Graphic16x16::display(){
+  FastLED.clear();
+  for(int i = 0; i < 16; i++) {
+    for(int j = 0; j < 16; j++){
+      leds[XY(j, i)] = MAIN_FRAME[XY(j, i)];
+    }
+  }
+  FastLED.show(); 
+}
 
 uint8_t Graphic16x16::XY(uint8_t x, uint8_t y) {
   const uint8_t XYTable[] = {

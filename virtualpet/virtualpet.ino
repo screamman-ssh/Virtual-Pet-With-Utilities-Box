@@ -4,46 +4,105 @@
 #include "background.h"
 #include "digit.h"
 #include "component.h"
+#include "digital_clock.h"
+#include "temperature.h"
 #include "graphic16x16.h"
-#include "FastLED.h"     
-#define NUM_LEDS 256
-#define DATA_PIN 14
-CRGB leds[NUM_LEDS];
 Graphic16x16 graphic;
-unsigned int bright = 50;
 time_t sec_time;
 float energyStatus;
 
 void setup() { 
-  FastLED.addLeds<WS2812B,DATA_PIN, GBR>(leds, NUM_LEDS);  // Init of the Fastled library
   pinMode(32, INPUT);
   pinMode(33, INPUT);
   pinMode(34, INPUT);
   pinMode(35, INPUT);
-  FastLED.setBrightness(bright);
   Serial.begin(115200);
   randomSeed((unsigned) time(&sec_time));
   energyStatus = 100;
+  graphic.setup();
   graphic.setBackground(background_data[0]);
 }
 unsigned long last_time, ignore_time;
 uint8_t behave, spec_behave;
 uint8_t frame, rand_frame;
-uint8_t menu = 0;
+uint8_t main_menu = 0;
 uint8_t mode;
+
 void loop() { 
-  // size_t freeHeap = ESP.getFreeHeap();
-  // Serial.print("Free Heap Memory: ");
-  // Serial.print(freeHeap);
-  // Serial.println(" bytes");
-  Serial.println(energyStatus);
+  size_t freeHeap = ESP.getFreeHeap();
+  Serial.print("Free Heap Memory: ");
+  Serial.print(freeHeap);
+  Serial.println(" bytes");
+  //Serial.println(energyStatus);
 
   graphic.clear();
   if((millis() - ignore_time) > 10000){
+    switch(main_menu){
+      case 0 : display_clock(graphic);break;
+      case 1 : display_temp(graphic);break;
+      case 5 : display_pet();break;
+      default : display_pet();
+    }
+  }else{ 
+    if(mode == 0){
+      graphic.draw(menu_icon_data[main_menu], 0, 0);
+    }
+    graphic.display();
+  }
+  if((millis() - last_time) > 150){
+    last_time = millis();
+    // if(!digitalRead(32)){
+    //   ignore_time = millis();
+    // }
+    if(!digitalRead(33)){
+      if(!mode){
+        main_menu < 5 ? main_menu++ : main_menu = 0;
+        ignore_time = millis();
+      }else{
+        spec_behave = 2;
+      }
+    }
+    if(!digitalRead(34)){
+      if(!mode){
+        main_menu > 0 ? main_menu-- : main_menu = 5;
+        ignore_time = millis();
+      }else{
+        spec_behave = 1;
+      }
+    }
+    if(!digitalRead(35)){
+      mode = 0;
+      main_menu = 0;
+      ignore_time = millis();
+    }
+  }
+}
+
+void display_pet(){
+  static uint8_t menu;
+  static unsigned long status_time;
+  static bool status;
+  if(!digitalRead(32)){
+    if(!status){
+      status = true;
+      menu = 0;
+    }else{
+      if((millis() - last_time) > 50){
+        menu < 2 ? menu++ : menu = 0;
+      }
+    }
+    last_time = millis();
+    status_time = millis();
+  }
+
+  if((millis() - status_time) > 5000)
+    status = false;
+
+  if(!status){
     if(mode != 1){
       mode = 1;
-      graphic.setBackground(background_data[0]);
     }
+    graphic.setBackground(background_data[0]);
     if(spec_behave){
       if((behave == 4 && frame > 15) || (behave == 5 && frame > 15)){
         behave = behave == 4 ? 6 : 7;
@@ -110,82 +169,24 @@ void loop() {
       case 9 : graphic.draw(isom_cat_love_data[frame % CAT_LOVE_FRAME], 0, 0); break;
       case 10 : graphic.draw(isom_cat_sleep_data[frame % CAT_SLEEP_FRAME], 0, 0); break;
     }
-    display();
     frame++;
     energyStatus > 0 ? energyStatus -= 0.001 : energyStatus = 0;
     delay(150);
-   }else{ 
-     if(mode == 0){
-       graphic.draw(menu_icon_data[menu], 0, 0);
-     }else if(mode == 2){
-       graphic.setBackground((uint8_t) 0x000000);
-       graphic.draw(status_data[menu], 0, 0);
-       if(ceil(energyStatus) == 100){
-        graphic.drawWithColor(number3x5_data[1],0xffeaeaea, 5, 3, 0, 10);
-        graphic.drawWithColor(number3x5_data[0],0xffeaeaea, 5, 3, 4, 10);
-        graphic.drawWithColor(number3x5_data[0],0xffeaeaea, 5, 3, 8, 10);
-       }else{
-         graphic.drawWithColor(number3x5_data[(int)ceil(energyStatus) / 10],0xffeaeaea, 5, 3, 4, 10);
-          graphic.drawWithColor(number3x5_data[(int)ceil(energyStatus) % 10],0xffeaeaea, 5, 3, 8, 10);
-       }
-
-       graphic.drawWithColor(percent3x5,0xffeaeaea, 5, 3, 12, 10);
-     }
-     display();
-   }
-    //for(int frame = 0; frame < 6; frame++){
-      if((millis() - last_time) > 150){
-        last_time = millis();
-        if(!digitalRead(32)){
-          if(mode != 2){
-            mode = 2;
-            menu = 0;
-          }else{
-            menu < 2 ? menu++ : menu = 0;
-          }
-          ignore_time = millis();
-        }
-        if(!digitalRead(33)){
-          if(!mode){
-            menu < 5 ? menu++ : menu = 0;
-            ignore_time = millis();
-          }else{
-            spec_behave = 2;
-          }
-        }
-        if(!digitalRead(34)){
-          if(!mode){
-            menu > 0 ? menu-- : menu = 5;
-            ignore_time = millis();
-          }else{
-            spec_behave = 1;
-          }
-        }
-        if(!digitalRead(35)){
-          mode = 0;
-          menu = 0;
-          ignore_time = millis();
-        }
-      }
-}
-
-void display(){
-  FastLED.clear();
-  for(int i = 0; i < 16; i++) {
-    for(int j = 0; j < 16; j++){
-      leds[graphic.XY(j, i)] = graphic.MAIN_FRAME[graphic.XY(j, i)];
+  }else{
+    graphic.setBackground((uint8_t) 0x000000);
+    graphic.draw(status_data[menu], 0, 0);
+    if(ceil(energyStatus) == 100){
+      graphic.drawWithColor(number3x5_data[1],0xffeaeaea, 5, 3, 0, 10);
+      graphic.drawWithColor(number3x5_data[0],0xffeaeaea, 5, 3, 4, 10);
+      graphic.drawWithColor(number3x5_data[0],0xffeaeaea, 5, 3, 8, 10);
+    }else{
+      graphic.drawWithColor(number3x5_data[(int)ceil(energyStatus) / 10],0xffeaeaea, 5, 3, 4, 10);
+      graphic.drawWithColor(number3x5_data[(int)ceil(energyStatus) % 10],0xffeaeaea, 5, 3, 8, 10);
     }
+
+    graphic.drawWithColor(percent3x5,0xffeaeaea, 5, 3, 12, 10);
   }
-  FastLED.show(); 
+  graphic.display();
 }
 
-void display(uint32_t *frame){
-  FastLED.clear();
-  for(int i = 0; i < 16; i++) {
-    for(int j = 0; j < 16; j++){
-      leds[graphic.XY(j, i)] = frame[graphic.XY(j, i)];
-    }
-  }
-  FastLED.show(); 
-}
 
