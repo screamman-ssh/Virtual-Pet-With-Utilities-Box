@@ -9,6 +9,7 @@ void display_temp(Graphic16x16 graphic){
   }
   graphic.draw(blink? 0xffeaeaea :0x000000 ,10,2);
   graphic.drawWithColor(alphabet3x5_data[2],0xffeaeaea,5,3,12,2);
+  graphic.draw(temp_data[0], 6, 16, 0, 8);
   delay(50);
   graphic.display();
 }
