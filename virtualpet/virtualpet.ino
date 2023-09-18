@@ -38,6 +38,7 @@ void loop() {
     switch(main_menu){
       case 0 : display_clock(graphic);break;
       case 1 : display_temp(graphic);break;
+      case 2 : display_calendar(graphic);break;
       case 5 : display_pet();break;
       default : display_pet();
     }
