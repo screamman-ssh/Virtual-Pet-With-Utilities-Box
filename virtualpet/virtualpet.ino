@@ -53,10 +53,10 @@ void loop() {
     //   ignore_time = millis();
     // }
     if(!digitalRead(33)){
-      if(!mode){
+      if(mode == 0){
         main_menu < 5 ? main_menu++ : main_menu = 0;
         ignore_time = millis();
-      }else{
+      }else if(mode == 1){
         spec_behave = 2;
       }
     }
