@@ -1,5 +1,3 @@
-#ifndef TEMPERATURE_H_
-#define TEMPERATURE_H_
 
 void display_temp(Graphic16x16 graphic){
   graphic.setBackground((uint32_t) 0x00000000);
@@ -14,5 +12,3 @@ void display_temp(Graphic16x16 graphic){
   delay(50);
   graphic.display();
 }
-
-#endif

@@ -4,8 +4,6 @@
 #include "background.h"
 #include "digit.h"
 #include "component.h"
-#include "digital_clock.h"
-#include "temperature.h"
 #include "graphic16x16.h"
 Graphic16x16 graphic;
 time_t sec_time;

@@ -1,6 +1,3 @@
-#ifndef DIGITAL_CLOCK_H_
-#define DIGITAL_CLOCK_H_
-#include "graphic16x16.h"
 
 unsigned long lasttime;
 bool blink = true;
@@ -20,5 +17,3 @@ void display_clock(Graphic16x16 graphic){
   delay(50);
   graphic.display();
 }
-
-#endif
