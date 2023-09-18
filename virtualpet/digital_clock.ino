@@ -27,17 +27,17 @@ void display_clock(Graphic16x16 graphic){
 
 void read_sw(){
   if(!digitalRead(32)){
-    if((millis() - last_time) > 150){
+    if((millis() - last_time) > 100){
+        last_time = millis();
         digit_color < 6 ? digit_color++ : digit_color = 0;
-        digit_color == bg_color ? (digit_color < 6 ? digit_color++ : digit_color = 0) : ;
+        digit_color != bg_color ? : digit_color < 6 ? digit_color++ : digit_color = 0;
     }
-    last_time = millis();
   }
   if(!digitalRead(33)){
-    if((millis() - last_time) > 150){
+    if((millis() - last_time) > 100){
+        last_time = millis();
         bg_color < 6 ? bg_color++ : bg_color = 0;
-        digit_color == bg_color ? (bg_color < 6 ? bg_color++ : bg_color = 0) : ;
+        digit_color != bg_color ? : bg_color < 6 ? bg_color++ : bg_color = 0;
     }
-    last_time = millis();
   }
 }
