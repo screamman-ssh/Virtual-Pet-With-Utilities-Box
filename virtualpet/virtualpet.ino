@@ -5,6 +5,14 @@
 #include "digit.h"
 #include "component.h"
 #include "graphic16x16.h"
+#include<DHT.h>
+#include <Wire.h>
+#include <TimeLib.h>
+#include <DS1307RTC.h>
+#define DHTPIN 23        
+#define DHTTYPE DHT11     
+DHT dht(DHTPIN, DHT11);
+tmElements_t tm; 
 Graphic16x16 graphic;
 time_t sec_time;
 float energyStatus;
@@ -20,6 +28,7 @@ void setup() {
   graphic.setup();
   graphic.setBackground(background_data[0]);
   dht.begin(); 
+  Wire.begin();
 }
 unsigned long last_time, ignore_time;
 uint8_t behave, spec_behave;

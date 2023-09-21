@@ -10,19 +10,23 @@ void display_clock(Graphic16x16 graphic){
     mode = 2;
   }
   read_sw();
-  graphic.setBackground(color[bg_color]);
-  graphic.drawWithColor(number3x5_data[2],color[digit_color],5,3,4,2);
-  graphic.drawWithColor(number3x5_data[0],color[digit_color],5,3,8,2);
-  if((millis()-lasttime )> 1000){
-    lasttime = millis();
-    blink = !blink;
+  if(RTC.read(tm)){
+    graphic.setBackground(color[bg_color]);
+    graphic.drawWithColor(number3x5_data[tm.Hour/10],color[digit_color],5,3,4,2);
+    graphic.drawWithColor(number3x5_data[tm.Hour%10],color[digit_color],5,3,8,2);
+    
+    if((millis()-lasttime )> 1000){
+      lasttime = millis();
+      blink = !blink;
+    }
+    graphic.draw(blink? color[digit_color] :color[bg_color] ,6,7);
+    graphic.draw(blink? color[digit_color] :color[bg_color] ,8,7);
+    graphic.drawWithColor(number3x5_data[tm.Minute/10],color[digit_color],5,3,4,9);
+    graphic.drawWithColor(number3x5_data[tm.Minute%10],color[digit_color],5,3,8,9);
+    delay(50);
+    graphic.display();
   }
-  graphic.draw(blink? color[digit_color] :color[bg_color] ,6,7);
-  graphic.draw(blink? color[digit_color] :color[bg_color] ,8,7);
-  graphic.drawWithColor(number3x5_data[1],color[digit_color],5,3,4,9);
-  graphic.drawWithColor(number3x5_data[4],color[digit_color],5,3,8,9);
-  delay(50);
-  graphic.display();
+  
 }
 
 void read_sw(){

@@ -1,9 +1,4 @@
 
-#include<DHT.h>
-#define DHTPIN 23        
-#define DHTTYPE DHT11     
-DHT dht(DHTPIN, DHT11);
-
 uint32_t temp_color_array[] = {0xffbf5f00, 0xffbf0000, 0xffbf005f, 0xff00dbdb, 0xff007fff, 0xff2828e2};
 uint8_t temp_color = 0;
 
