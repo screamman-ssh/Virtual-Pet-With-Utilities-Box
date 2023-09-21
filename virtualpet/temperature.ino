@@ -1,11 +1,18 @@
+
+#include<DHT.h>
+#define DHTPIN 23        
+#define DHTTYPE DHT11     
+DHT dht(DHTPIN, DHT11);
+
 uint32_t temp_color_array[] = {0xffbf5f00, 0xffbf0000, 0xffbf005f, 0xff00dbdb, 0xff007fff, 0xff2828e2};
 uint8_t temp_color = 0;
 
 void display_temp(Graphic16x16 graphic){
-  temp_color = temp_color_selector(32);
+  int t = (int)dht.readTemperature();
+  temp_color = temp_color_selector(t);
   graphic.setBackground(temp_color_array[temp_color]);
-  graphic.drawWithColor(number3x5_data[3],0xffeaeaea,5,3,2,2);
-  graphic.drawWithColor(number3x5_data[2],0xffeaeaea,5,3,6,2);
+  graphic.drawWithColor(number3x5_data[t/10],0xffeaeaea,5,3,2,2);
+  graphic.drawWithColor(number3x5_data[t%10],0xffeaeaea,5,3,6,2);
   if ((millis()-lasttime )> 1000){
     lasttime = millis();
     blink = !blink;

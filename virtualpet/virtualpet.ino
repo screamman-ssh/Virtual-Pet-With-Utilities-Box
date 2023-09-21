@@ -19,6 +19,7 @@ void setup() {
   energyStatus = 100;
   graphic.setup();
   graphic.setBackground(background_data[0]);
+  dht.begin(); 
 }
 unsigned long last_time, ignore_time;
 uint8_t behave, spec_behave;
