@@ -15,7 +15,22 @@ DHT dht(DHTPIN, DHT11);
 tmElements_t tm; 
 Graphic16x16 graphic;
 time_t sec_time;
+unsigned long last_time, ignore_time;
+uint8_t frame, behave;
 float energyStatus;
+uint8_t background;
+uint8_t cat_skin;
+uint32_t const (*sel_cat_love)[256];
+uint32_t const (*sel_cat_sleep)[256];
+uint32_t const (*sel_cat_lay)[256];
+uint32_t const (*sel_cat_eat)[256];
+uint32_t const (*sel_cat_sit)[256];
+uint32_t const (*sel_cat_stand_l)[256];
+uint32_t const (*sel_cat_stand_r)[256];
+uint32_t const (*sel_cat_walk_l)[256];
+uint32_t const (*sel_cat_walk_r)[256];
+uint32_t const (*sel_cat_walk_back_l)[256];
+uint32_t const (*sel_cat_walk_back_r)[256];
 
 void setup() { 
   pinMode(32, INPUT);
@@ -29,12 +44,12 @@ void setup() {
   graphic.setBackground(background_data[0]);
   dht.begin(); 
   Wire.begin();
+  ignore_time = millis() + 10100;
+  background = 0;
+  select_cat_skin(cat_skin);
 }
-unsigned long last_time, ignore_time;
-uint8_t behave, spec_behave;
-uint8_t frame, rand_frame;
-uint8_t main_menu = 0;
-uint8_t mode;
+uint8_t main_menu = 6;
+uint8_t mode = 1;
 
 void loop() { 
   size_t freeHeap = ESP.getFreeHeap();
@@ -44,12 +59,14 @@ void loop() {
   //Serial.println(energyStatus);
 
   graphic.clear();
-  if((millis() - ignore_time) > 10000){
+  if((millis() - ignore_time) > 10000 || mode != 0){
     switch(main_menu){
       case 0 : display_clock(graphic);break;
       case 1 : display_temp(graphic);break;
       case 2 : display_calendar(graphic);break;
-      case 5 : display_pet();break;
+      case 4 : display_change_skin_pet();break;
+      case 5 : display_change_background_pet();break;
+      case 6 : display_pet();break;
       default : display_pet();
     }
   }else{ 
@@ -65,29 +82,60 @@ void loop() {
     // }
     if(!digitalRead(33)){
       if(mode == 0){
-        main_menu < 5 ? main_menu++ : main_menu = 0;
+        main_menu < 6 ? main_menu++ : main_menu = 0;
         ignore_time = millis();
-      }else if(mode == 1){
-        spec_behave = 2;
       }
     }
     if(!digitalRead(34)){
-      if(!mode){
-        main_menu > 0 ? main_menu-- : main_menu = 5;
+      if(mode == 0){
+        main_menu > 0 ? main_menu-- : main_menu = 6;
         ignore_time = millis();
-      }else{
-        spec_behave = 1;
       }
     }
     if(!digitalRead(35)){
-      mode = 0;
-      main_menu = 0;
-      ignore_time = millis();
+      if(mode != 0){
+        mode = 0;
+        main_menu = 0;
+        ignore_time = millis();
+      }else if(mode == 0){
+        ignore_time += 10000;
+        mode = 1;
+      }
     }
   }
 }
 
+void select_cat_skin(uint8_t skin){
+  if(skin == 0){
+    sel_cat_love = cat_love_data;
+    sel_cat_sleep = cat_sleep_data;
+    sel_cat_lay = cat_lay_data;
+    sel_cat_eat = cat_eat_data;
+    sel_cat_sit = cat_sit_data;
+    sel_cat_stand_l = cat_stand_l_data;
+    sel_cat_stand_r = cat_stand_r_data;
+    sel_cat_walk_l = cat_walk_l_data;
+    sel_cat_walk_r = cat_walk_r_data;
+    sel_cat_walk_back_l = cat_walk_back_l_data;
+    sel_cat_walk_back_r = cat_walk_back_r_data;
+  }else if(skin == 1){
+    sel_cat_love = isom_cat_love_data;
+    sel_cat_sleep = isom_cat_sleep_data;
+    sel_cat_lay = isom_cat_lay_data;
+    sel_cat_eat = isom_cat_eat_data;
+    sel_cat_sit = isom_cat_sit_data;
+    sel_cat_stand_l = isom_cat_stand_l_data;
+    sel_cat_stand_r = isom_cat_stand_r_data;
+    sel_cat_walk_l = isom_cat_walk_l_data;
+    sel_cat_walk_r = isom_cat_walk_r_data;
+    sel_cat_walk_back_l = isom_cat_walk_back_l_data;
+    sel_cat_walk_back_r = isom_cat_walk_back_r_data;
+  }
+}
+
 void display_pet(){
+  static uint8_t spec_behave;
+  static uint8_t rand_frame;
   static uint8_t menu;
   static unsigned long status_time;
   static bool status;
@@ -103,6 +151,16 @@ void display_pet(){
     last_time = millis();
     status_time = millis();
   }
+  if(!digitalRead(33)){
+    if(mode != 0){
+      spec_behave = 2;
+    }
+  }
+  if(!digitalRead(34)){
+    if(mode != 0){
+      spec_behave = 1;
+    }
+  }
 
   if((millis() - status_time) > 5000)
     status = false;
@@ -111,7 +169,7 @@ void display_pet(){
     if(mode != 1){
       mode = 1;
     }
-    graphic.setBackground(background_data[0]);
+    graphic.setBackground(background_data[background]);
     if(spec_behave){
       if((behave == 4 && frame > 15) || (behave == 5 && frame > 15)){
         behave = behave == 4 ? 6 : 7;
@@ -152,31 +210,31 @@ void display_pet(){
     }
 
     switch(behave){
-      case 0 : graphic.draw(isom_cat_sit_data[frame % CAT_SIT_FRAME], 0, 0); break;
-      case 1 : graphic.draw(isom_cat_lay_data[frame % CAT_LAY_FRAME], 0, 0); break;
-      case 2 : graphic.draw(isom_cat_stand_r_data[frame % CAT_STAND_R_FRAME], 0, 0); break;
-      case 3 : graphic.draw(isom_cat_stand_l_data[frame % CAT_STAND_L_FRAME], 0, 0); break;
+      case 0 : graphic.draw(sel_cat_sit[frame % CAT_SIT_FRAME], 0, 0); break;
+      case 1 : graphic.draw(sel_cat_lay[frame % CAT_LAY_FRAME], 0, 0); break;
+      case 2 : graphic.draw(sel_cat_stand_r[frame % CAT_STAND_R_FRAME], 0, 0); break;
+      case 3 : graphic.draw(sel_cat_stand_l[frame % CAT_STAND_L_FRAME], 0, 0); break;
       case 4 :
               if(frame < 16){
                 if(frame < 5)
-                  graphic.draw(isom_cat_walk_r_data[frame], 0, 0);
+                  graphic.draw(sel_cat_walk_r[frame], 0, 0);
                 else
-                  graphic.draw(isom_cat_walk_r_data[5 + (frame % 4)], frame - 5, 0);
+                  graphic.draw(sel_cat_walk_r[5 + (frame % 4)], frame - 5, 0);
               }
               break;
       case 5 : 
               if(frame < 16){
                 if(frame < 5)
-                  graphic.draw(isom_cat_walk_l_data[frame], 0, 0);
+                  graphic.draw(sel_cat_walk_l[frame], 0, 0);
                 else
-                  graphic.draw(isom_cat_walk_l_data[5 + (frame % 4)], -(frame - 5) - 1, 0);
+                  graphic.draw(sel_cat_walk_l[5 + (frame % 4)], -(frame - 5) - 1, 0);
               }
               break;
-      case 6 : graphic.draw(isom_cat_walk_back_r_data[frame % CAT_WALK_BACK_R_FRAME], (16 - frame), 0); break;
-      case 7 : graphic.draw(isom_cat_walk_back_l_data[frame % CAT_WALK_BACK_L_FRAME], -(16 - frame), 0); break;
-      case 8 : graphic.draw(isom_cat_eat_data[frame % CAT_EAT_FRAME], 0, 0); energyStatus < 100 ? energyStatus += 1 : energyStatus = 100; break;
-      case 9 : graphic.draw(isom_cat_love_data[frame % CAT_LOVE_FRAME], 0, 0); break;
-      case 10 : graphic.draw(isom_cat_sleep_data[frame % CAT_SLEEP_FRAME], 0, 0); break;
+      case 6 : graphic.draw(sel_cat_walk_back_r[frame % CAT_WALK_BACK_R_FRAME], (16 - frame), 0); break;
+      case 7 : graphic.draw(sel_cat_walk_back_l[frame % CAT_WALK_BACK_L_FRAME], -(16 - frame), 0); break;
+      case 8 : graphic.draw(sel_cat_eat[frame % CAT_EAT_FRAME], 0, 0); energyStatus < 100 ? energyStatus += 1 : energyStatus = 100; break;
+      case 9 : graphic.draw(sel_cat_love[frame % CAT_LOVE_FRAME], 0, 0); break;
+      case 10 : graphic.draw(sel_cat_sleep[frame % CAT_SLEEP_FRAME], 0, 0); break;
     }
     frame++;
     energyStatus > 0 ? energyStatus -= 0.001 : energyStatus = 0;
@@ -198,4 +256,42 @@ void display_pet(){
   graphic.display();
 }
 
+void display_change_skin_pet(){
+  graphic.setBackground(background_data[background]);
+  if(mode != 0){
+    if(!digitalRead(33)){
+      cat_skin < 1 ? cat_skin++ : cat_skin = 0;
+    }
+    if(!digitalRead(34)){
+      cat_skin > 0 ? cat_skin-- : cat_skin = 1;
+    }
+    if(!digitalRead(32)){
+      behave = 2;
+      main_menu = 6;
+    }
+  }
+  select_cat_skin(cat_skin);
+  graphic.draw(sel_cat_stand_r[frame % CAT_STAND_R_FRAME], 0, 0);
+  frame++;
+  graphic.display();
+  delay(150);
+}
+
+void display_change_background_pet(){
+  if(mode != 0){
+    if(!digitalRead(33)){
+      background < 2 ? background++ : background = 0;
+    }
+    if(!digitalRead(34)){
+      background > 0 ? background-- : background = 2;
+    }
+    if(!digitalRead(32)){
+      behave = 2;
+      main_menu = 6;
+    }
+  }
+  graphic.setBackground(background_data[background]);
+  graphic.display();
+  delay(150);
+}
 
