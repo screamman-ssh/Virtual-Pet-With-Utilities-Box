@@ -1,6 +1,7 @@
 //#include <avr/pgmspace.h>
 #include "cat.h"
 #include "isom_cat.h"
+#include "idum_cat.h"
 #include "background.h"
 #include "digit.h"
 #include "component.h"
@@ -278,7 +279,7 @@ void display_change_skin_pet(){
     }
   }
   select_cat_skin(cat_skin);
-  graphic.draw(sel_cat_stand_r[frame % CAT_STAND_R_FRAME], 0, 0);
+  graphic.draw(idum_cat_stand_r_data[frame % CAT_STAND_R_FRAME], 0, 0);
   frame++;
   graphic.display();
   delay(150);
