@@ -14,6 +14,7 @@
 DHT dht(DHTPIN, DHT11);
 tmElements_t tm; 
 Graphic16x16 graphic;
+unsigned int bright = 50;
 time_t sec_time;
 unsigned long last_time, ignore_time;
 uint8_t frame, behave;
@@ -37,6 +38,7 @@ void setup() {
   pinMode(33, INPUT);
   pinMode(34, INPUT);
   pinMode(35, INPUT);
+  pinMode(27, INPUT);
   Serial.begin(115200);
   randomSeed((unsigned) time(&sec_time));
   energyStatus = 100;
@@ -44,6 +46,7 @@ void setup() {
   graphic.setBackground(background_data[0]);
   dht.begin(); 
   Wire.begin();
+  // attachInterrupt(27, setBrightnessISR, CHANGE);
   ignore_time = millis() + 10100;
   background = 0;
   select_cat_skin(cat_skin);
@@ -57,6 +60,11 @@ void loop() {
   Serial.print(freeHeap);
   Serial.println(" bytes");
   //Serial.println(energyStatus);
+
+  bright = int((analogRead(27)/4095.0) * 100);
+  bright > 1 ? : bright = 1;
+  Serial.println(bright);
+  graphic.setBrightness(bright);
 
   graphic.clear();
   if((millis() - ignore_time) > 10000 || mode != 0){
@@ -95,7 +103,6 @@ void loop() {
     if(!digitalRead(35)){
       if(mode != 0){
         mode = 0;
-        main_menu = 0;
         ignore_time = millis();
       }else if(mode == 0){
         ignore_time += 10000;
@@ -237,7 +244,7 @@ void display_pet(){
       case 10 : graphic.draw(sel_cat_sleep[frame % CAT_SLEEP_FRAME], 0, 0); break;
     }
     frame++;
-    energyStatus > 0 ? energyStatus -= 0.001 : energyStatus = 0;
+    energyStatus > 0 ? energyStatus -= 0.1 : energyStatus = 0;
     delay(150);
   }else{
     graphic.setBackground((uint8_t) 0x000000);

@@ -3,11 +3,10 @@
 #define NUM_LEDS 256
 #define DATA_PIN 14
 CRGB leds[NUM_LEDS];
-unsigned int bright = 50;
 
 void Graphic16x16::setup(){
   FastLED.addLeds<WS2812B, DATA_PIN, GBR>(leds, NUM_LEDS);
-  FastLED.setBrightness(bright);
+  FastLED.setBrightness(20);
 }
 
 void Graphic16x16::display(){
@@ -113,4 +112,8 @@ void Graphic16x16::clear(){
       count++;
     }
   }
+}
+
+void Graphic16x16::setBrightness(uint8_t bright){
+  FastLED.setBrightness(bright);
 }

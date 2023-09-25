@@ -16,6 +16,7 @@ class Graphic16x16{
     void drawWithColor(uint8_t const *object, uint32_t color, uint8_t r, int8_t c, int8_t x, int8_t y);
     void display();
     void clear();
+    void setBrightness(uint8_t bright);
 };
 
 #endif
