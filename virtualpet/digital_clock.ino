@@ -9,7 +9,7 @@ void display_clock(Graphic16x16 graphic){
   if(mode != 2){
     mode = 2;
   }
-  read_sw();
+  read_sw_digital_clock();
   if(RTC.read(tm)){
     graphic.setBackground(color[bg_color]);
     graphic.drawWithColor(number3x5_data[tm.Hour/10],color[digit_color],5,3,4,2);
@@ -29,10 +29,11 @@ void display_clock(Graphic16x16 graphic){
   
 }
 
-void read_sw(){
+void read_sw_digital_clock(){
   if(!digitalRead(32)){
     if((millis() - last_time) > 100){
         last_time = millis();
+        while(!digitalRead(32));
         digit_color < 6 ? digit_color++ : digit_color = 0;
         digit_color != bg_color ? : digit_color < 6 ? digit_color++ : digit_color = 0;
     }
@@ -40,6 +41,7 @@ void read_sw(){
   if(!digitalRead(33)){
     if((millis() - last_time) > 100){
         last_time = millis();
+        while(!digitalRead(33));
         bg_color < 6 ? bg_color++ : bg_color = 0;
         digit_color != bg_color ? : bg_color < 6 ? bg_color++ : bg_color = 0;
     }

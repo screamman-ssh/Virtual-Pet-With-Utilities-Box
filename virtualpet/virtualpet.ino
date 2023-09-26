@@ -89,16 +89,18 @@ void loop() {
     // if(!digitalRead(32)){
     //   ignore_time = millis();
     // }
-    if(!digitalRead(33)){
-      if(mode == 0){
-        main_menu < 6 ? main_menu++ : main_menu = 0;
-        ignore_time = millis();
+    if(mode == 0){
+      if(!digitalRead(33)){
+        if(mode == 0){
+          main_menu < 6 ? main_menu++ : main_menu = 0;
+          ignore_time = millis();
+        }
       }
-    }
-    if(!digitalRead(34)){
-      if(mode == 0){
-        main_menu > 0 ? main_menu-- : main_menu = 6;
-        ignore_time = millis();
+      if(!digitalRead(34)){
+        if(mode == 0){
+          main_menu > 0 ? main_menu-- : main_menu = 6;
+          ignore_time = millis();
+        }
       }
     }
     if(!digitalRead(35)){
@@ -110,6 +112,7 @@ void loop() {
         mode = 1;
       }
     }
+    while(!digitalRead(35));
   }
 }
 
@@ -245,7 +248,7 @@ void display_pet(){
       case 10 : graphic.draw(sel_cat_sleep[frame % CAT_SLEEP_FRAME], 0, 0); break;
     }
     frame++;
-    energyStatus > 0 ? energyStatus -= 0.1 : energyStatus = 0;
+    energyStatus > 0 ? energyStatus -= 0.01 : energyStatus = 0;
     delay(150);
   }else{
     graphic.setBackground((uint8_t) 0x000000);
@@ -269,13 +272,16 @@ void display_change_skin_pet(){
   if(mode != 0){
     if(!digitalRead(33)){
       cat_skin < 1 ? cat_skin++ : cat_skin = 0;
+      while(!digitalRead(33));
     }
     if(!digitalRead(34)){
       cat_skin > 0 ? cat_skin-- : cat_skin = 1;
+      while(!digitalRead(34));
     }
     if(!digitalRead(32)){
       behave = 2;
       main_menu = 6;
+      while(!digitalRead(32));
     }
   }
   select_cat_skin(cat_skin);
@@ -289,13 +295,16 @@ void display_change_background_pet(){
   if(mode != 0){
     if(!digitalRead(33)){
       background < 2 ? background++ : background = 0;
+      while(!digitalRead(33));
     }
     if(!digitalRead(34)){
       background > 0 ? background-- : background = 2;
+      while(!digitalRead(34));
     }
     if(!digitalRead(32)){
       behave = 2;
       main_menu = 6;
+      while(!digitalRead(32));
     }
   }
   graphic.setBackground(background_data[background]);
