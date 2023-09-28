@@ -75,7 +75,8 @@ void loop() {
       case 2 : display_calendar(graphic);break;
       case 4 : display_change_skin_pet();break;
       case 5 : display_change_background_pet();break;
-      case 6 : display_pet();break;
+      case 6 : display_snake_game();break;
+      //case 6 : display_pet();break;
       default : display_pet();
     }
   }else{ 
@@ -94,25 +95,27 @@ void loop() {
         if(mode == 0){
           main_menu < 6 ? main_menu++ : main_menu = 0;
           ignore_time = millis();
+          while(!digitalRead(33));
         }
       }
       if(!digitalRead(34)){
         if(mode == 0){
           main_menu > 0 ? main_menu-- : main_menu = 6;
           ignore_time = millis();
+          while(!digitalRead(34));
         }
       }
     }
-    if(!digitalRead(35)){
-      if(mode != 0){
-        mode = 0;
-        ignore_time = millis();
-      }else if(mode == 0){
-        ignore_time += 10000;
-        mode = 1;
-      }
-    }
-    while(!digitalRead(35));
+    // if(!digitalRead(35)){
+    //   if(mode != 0){
+    //     mode = 0;
+    //     ignore_time = millis();
+    //   }else if(mode == 0){
+    //     ignore_time += 10000;
+    //     mode = 1;
+    //   }
+    // }
+    // while(!digitalRead(35));
   }
 }
 
@@ -141,6 +144,18 @@ void select_cat_skin(uint8_t skin){
     sel_cat_walk_r = isom_cat_walk_r_data;
     sel_cat_walk_back_l = isom_cat_walk_back_l_data;
     sel_cat_walk_back_r = isom_cat_walk_back_r_data;
+  }else if(skin == 2){
+    sel_cat_love = idum_cat_love_data;
+    sel_cat_sleep = idum_cat_sleep_data;
+    sel_cat_lay = idum_cat_lay_data;
+    sel_cat_eat = idum_cat_eat_data;
+    sel_cat_sit = idum_cat_sit_data;
+    sel_cat_stand_l = idum_cat_stand_l_data;
+    sel_cat_stand_r = idum_cat_stand_r_data;
+    sel_cat_walk_l = idum_cat_walk_l_data;
+    sel_cat_walk_r = idum_cat_walk_r_data;
+    sel_cat_walk_back_l = idum_cat_walk_back_l_data;
+    sel_cat_walk_back_r = idum_cat_walk_back_r_data;
   }
 }
 
@@ -271,11 +286,11 @@ void display_change_skin_pet(){
   graphic.setBackground(background_data[background]);
   if(mode != 0){
     if(!digitalRead(33)){
-      cat_skin < 1 ? cat_skin++ : cat_skin = 0;
+      cat_skin < 2 ? cat_skin++ : cat_skin = 0;
       while(!digitalRead(33));
     }
     if(!digitalRead(34)){
-      cat_skin > 0 ? cat_skin-- : cat_skin = 1;
+      cat_skin > 0 ? cat_skin-- : cat_skin = 2;
       while(!digitalRead(34));
     }
     if(!digitalRead(32)){
@@ -285,7 +300,7 @@ void display_change_skin_pet(){
     }
   }
   select_cat_skin(cat_skin);
-  graphic.draw(idum_cat_stand_r_data[frame % CAT_STAND_R_FRAME], 0, 0);
+  graphic.draw(sel_cat_stand_r[frame % CAT_STAND_R_FRAME], 0, 0);
   frame++;
   graphic.display();
   delay(150);
