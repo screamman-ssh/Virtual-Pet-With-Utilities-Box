@@ -6,9 +6,6 @@ uint8_t digit_color = 1;
 uint8_t bg_color = 0;
 
 void display_clock(Graphic16x16 graphic){
-  if(mode != 2){
-    mode = 2;
-  }
   read_sw_digital_clock();
   if(RTC.read(tm)){
     graphic.setBackground(color[bg_color]);

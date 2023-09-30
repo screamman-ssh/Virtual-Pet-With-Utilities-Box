@@ -4,10 +4,13 @@ uint8_t food_empty=1;
 uint8_t food_x,food_y;
 uint8_t snake_len = 1;
 uint8_t alive = 1;
+uint8_t score = 0;
 
 void display_snake_game(){
+  if(mode != 2)
+    mode = 2;
   graphic.clear();
-  read_sw();
+  sw_snakegame();
   if (food_empty){
     spawn_food();
   }
@@ -24,48 +27,70 @@ void display_snake_game(){
   else{
     for(int n = 0; n < 3; n++){
       for(int i = 0; i < snake_len; i++)
-        graphic.draw(0xff055405, x[i], y[i]);
+        graphic.draw((uint32_t)0, x[i], y[i]); 
       graphic.display();
       delay(300);
       for(int i = 0; i < snake_len; i++)
-        graphic.draw((uint32_t)0, x[i], y[i]);
+        graphic.draw(0xff055405, x[i], y[i]);
       graphic.display();
       delay(300);
     }
+    for(int n = 0; n < 3; n++){
+      graphic.drawWithColor(number3x5_data[score/10],0x00000000,5,3,4,5);
+      graphic.drawWithColor(number3x5_data[score%10],0x00000000,5,3,8,5);
+      for(int i = 0; i < 16; i++){
+        graphic.draw((uint8_t)0x00000000,i,0);
+        graphic.draw((uint8_t)0x00000000,i,15);
+        graphic.draw((uint8_t)0x00000000,0,i);
+        graphic.draw((uint8_t)0x00000000,15,i);
+      }
+      graphic.display();
+      delay(300);
+      graphic.drawWithColor(number3x5_data[score/10],0xffffffff,5,3,4,5);
+      graphic.drawWithColor(number3x5_data[score%10],0xffffffff,5,3,8,5);
+      for(int i = 0; i < 16; i++){
+        graphic.draw(0xff0000ff,i,0);
+        graphic.draw(0xff0000ff,i,15);
+        graphic.draw(0xff0000ff,0,i);
+        graphic.draw(0xff0000ff,15,i);
+      }
+      graphic.display();
+      delay(300); 
+    }
+    mode = 1;
+    while(digitalRead(32) && digitalRead(35));
+    if(!digitalRead(32)){
+      alive = 1;
+      snake_len = 1;
+      x[0] = 0;y[0] = 0;
+      spawn_food();
+      score = 0;
+      d_x = 1; d_y = 0;
+    }   
   }
-  
   graphic.display();
-  delay(150); 
-
-  Serial.print(d_x);
-  Serial.println(d_y);
-  
+  delay(150);  
 }
 
-
-void read_sw(){
+void sw_snakegame(){
   if(!digitalRead(32)){
-    if(d_x == 0){
+    if(d_x == 0)
       d_x = 1;
-    }
     d_y=0;
   }
   if(!digitalRead(33)){
-    if(d_x == 0){
+    if(d_x == 0)
       d_x = -1;
-    }
     d_y=0;
   }
   if(!digitalRead(35)){
-    if(d_y == 0){
+    if(d_y == 0)
       d_y = -1;
-    }
     d_x=0;
   }
   if(!digitalRead(34)){
-    if(d_y == 0){
+    if(d_y == 0)
       d_y = 1;
-    }
     d_x=0;
   }
 }
@@ -92,7 +117,8 @@ void move_snake(){
     for(int i = 1; i < snake_len; i++){
       x[i] = x_tail[i-1];
       y[i] = y_tail[i-1];
-    }   
+    }
+    score++;   
   }
   x[0] = x_head;
   y[0] = y_head;

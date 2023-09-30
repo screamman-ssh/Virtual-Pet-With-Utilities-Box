@@ -73,10 +73,10 @@ void loop() {
       case 0 : display_clock(graphic);break;
       case 1 : display_temp(graphic);break;
       case 2 : display_calendar(graphic);break;
+      case 3 : display_snake_game();break;
       case 4 : display_change_skin_pet();break;
       case 5 : display_change_background_pet();break;
-      case 6 : display_snake_game();break;
-      //case 6 : display_pet();break;
+      case 6 : display_pet();break;
       default : display_pet();
     }
   }else{ 
@@ -106,16 +106,18 @@ void loop() {
         }
       }
     }
-    // if(!digitalRead(35)){
-    //   if(mode != 0){
-    //     mode = 0;
-    //     ignore_time = millis();
-    //   }else if(mode == 0){
-    //     ignore_time += 10000;
-    //     mode = 1;
-    //   }
-    // }
-    // while(!digitalRead(35));
+    if(mode != 2){
+      if(!digitalRead(35)){
+        if(mode != 0){
+          mode = 0;
+          ignore_time = millis();
+        }else if(mode == 0){
+          ignore_time += 10000;
+          mode = 1;
+        }
+      }
+      while(!digitalRead(35));
+    }
   }
 }
 
