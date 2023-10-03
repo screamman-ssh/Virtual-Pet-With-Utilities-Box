@@ -59,14 +59,14 @@ void display_snake_game(){
     }
     mode = 1;
     while(digitalRead(32) && digitalRead(35));
-    if(!digitalRead(32)){
+    if(!digitalRead(32) || !digitalRead(35)){
       alive = 1;
       snake_len = 1;
       x[0] = 0;y[0] = 0;
       spawn_food();
       score = 0;
       d_x = 1; d_y = 0;
-    }   
+    }  
   }
   graphic.display();
   delay(150);  

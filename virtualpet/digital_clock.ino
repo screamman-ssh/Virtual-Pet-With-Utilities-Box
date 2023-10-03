@@ -9,8 +9,8 @@ void display_clock(Graphic16x16 graphic){
   read_sw_digital_clock();
   if(RTC.read(tm)){
     graphic.setBackground(color[bg_color]);
-    graphic.drawWithColor(number3x5_data[tm.Hour/10],color[digit_color],5,3,4,2);
-    graphic.drawWithColor(number3x5_data[tm.Hour%10],color[digit_color],5,3,8,2);
+    graphic.drawWithColor(number3x5_data[tm.Hour/10],color[digit_color],5,3,4,1);
+    graphic.drawWithColor(number3x5_data[tm.Hour%10],color[digit_color],5,3,8,1);
     
     if((millis()-lasttime )> 1000){
       lasttime = millis();
