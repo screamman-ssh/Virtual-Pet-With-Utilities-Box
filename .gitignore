@@ -1,3 +1,5 @@
 odroid-webserver
+odroid-part/credentials.json
+odroid-part/token.json
 odroid-part/odroid
 odroid-part/__pycache__
