@@ -4,7 +4,7 @@ uint8_t temp_color = 0;
 
 void display_temp(Graphic16x16 graphic){
   int t = (int)dht.readTemperature();
-  temp_color = temp_color_selector(41);
+  temp_color = temp_color_selector(t);
   graphic.setBackground(temp_color_array[temp_color]);
   graphic.drawWithColor(number3x5_data[t/10],0xffeaeaea,5,3,2,2);
   graphic.drawWithColor(number3x5_data[t%10],0xffeaeaea,5,3,6,2);

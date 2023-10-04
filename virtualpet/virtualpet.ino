@@ -10,16 +10,19 @@
 #include <Wire.h>
 #include <TimeLib.h>
 #include <DS1307RTC.h>
+#include <string.h>
+#include <HardwareSerial.h>
 #define DHTPIN 23        
 #define DHTTYPE DHT11     
 DHT dht(DHTPIN, DHT11);
 tmElements_t tm; 
 Graphic16x16 graphic;
+HardwareSerial SerialPort(2);
 unsigned int bright = 50;
 time_t sec_time;
 unsigned long last_time, ignore_time;
 uint8_t frame, behave;
-float energyStatus;
+float energyStatus, loveStatus, happyStatus;
 uint8_t background;
 uint8_t cat_skin;
 uint32_t const (*sel_cat_love)[256];
@@ -41,6 +44,7 @@ void setup() {
   pinMode(35, INPUT);
   pinMode(27, INPUT);
   Serial.begin(115200);
+  SerialPort.begin(115200, SERIAL_8N1, 16, 17);
   randomSeed((unsigned) time(&sec_time));
   energyStatus = 100;
   graphic.setup();
@@ -66,6 +70,8 @@ void loop() {
   bright > 1 ? : bright = 1;
   Serial.println(bright);
   graphic.setBrightness(bright);
+
+  update_data_to_odroid();
 
   graphic.clear();
   if((millis() - ignore_time) > 10000 || mode != 0){
@@ -265,18 +271,40 @@ void display_pet(){
       case 10 : graphic.draw(sel_cat_sleep[frame % CAT_SLEEP_FRAME], 0, 0); break;
     }
     frame++;
-    energyStatus > 0 ? energyStatus -= 0.01 : energyStatus = 0;
+    energyStatus > 0 ? energyStatus -= 0.001 : energyStatus = 0;
+    loveStatus > 0 ? loveStatus -= 0.005 : loveStatus = 0;
+    happyStatus > 0 ? happyStatus -= 0.001 : happyStatus = 0;
     delay(150);
   }else{
     graphic.setBackground((uint8_t) 0x000000);
     graphic.draw(status_data[menu], 0, 0);
-    if(ceil(energyStatus) == 100){
-      graphic.drawWithColor(number3x5_data[1],0xffeaeaea, 5, 3, 0, 10);
-      graphic.drawWithColor(number3x5_data[0],0xffeaeaea, 5, 3, 4, 10);
-      graphic.drawWithColor(number3x5_data[0],0xffeaeaea, 5, 3, 8, 10);
-    }else{
-      graphic.drawWithColor(number3x5_data[(int)ceil(energyStatus) / 10],0xffeaeaea, 5, 3, 4, 10);
-      graphic.drawWithColor(number3x5_data[(int)ceil(energyStatus) % 10],0xffeaeaea, 5, 3, 8, 10);
+    if(menu == 0){
+      if(ceil(energyStatus) == 100){
+        graphic.drawWithColor(number3x5_data[1],0xffeaeaea, 5, 3, 0, 10);
+        graphic.drawWithColor(number3x5_data[0],0xffeaeaea, 5, 3, 4, 10);
+        graphic.drawWithColor(number3x5_data[0],0xffeaeaea, 5, 3, 8, 10);
+      }else{
+        graphic.drawWithColor(number3x5_data[(int)ceil(energyStatus) / 10],0xffeaeaea, 5, 3, 4, 10);
+        graphic.drawWithColor(number3x5_data[(int)ceil(energyStatus) % 10],0xffeaeaea, 5, 3, 8, 10);
+      }
+    }else if(menu == 1){
+      if(ceil(energyStatus) == 100){
+        graphic.drawWithColor(number3x5_data[1],0xffeaeaea, 5, 3, 0, 10);
+        graphic.drawWithColor(number3x5_data[0],0xffeaeaea, 5, 3, 4, 10);
+        graphic.drawWithColor(number3x5_data[0],0xffeaeaea, 5, 3, 8, 10);
+      }else{
+        graphic.drawWithColor(number3x5_data[(int)ceil(loveStatus) / 10],0xffeaeaea, 5, 3, 4, 10);
+        graphic.drawWithColor(number3x5_data[(int)ceil(loveStatus) % 10],0xffeaeaea, 5, 3, 8, 10);
+      }
+    }else if(menu == 2){
+      if(ceil(energyStatus) == 100){
+        graphic.drawWithColor(number3x5_data[1],0xffeaeaea, 5, 3, 0, 10);
+        graphic.drawWithColor(number3x5_data[0],0xffeaeaea, 5, 3, 4, 10);
+        graphic.drawWithColor(number3x5_data[0],0xffeaeaea, 5, 3, 8, 10);
+      }else{
+        graphic.drawWithColor(number3x5_data[(int)ceil(happyStatus) / 10],0xffeaeaea, 5, 3, 4, 10);
+        graphic.drawWithColor(number3x5_data[(int)ceil(happyStatus) % 10],0xffeaeaea, 5, 3, 8, 10);
+      }
     }
 
     graphic.drawWithColor(percent3x5,0xffeaeaea, 5, 3, 12, 10);
@@ -329,3 +357,25 @@ void display_change_background_pet(){
   delay(150);
 }
 
+
+void update_data_to_odroid(){
+  char send_data[20];
+  sprintf(send_data, "%d,%d,%d,%d,%d,%d", (int)ceil(energyStatus), (int)ceil(energyStatus), (int)ceil(energyStatus), 0, 0, 0);
+  int e, l, h, s, f, p;
+  if (SerialPort.available())
+  {
+    char data[100] = {};
+    SerialPort.write('U');
+    SerialPort.write(send_data);
+    int i = 0;
+    while(SerialPort.available()){
+      char r = SerialPort.read();
+      data[i] = r;
+      i++;
+    }
+    //data = "100 100 12 54 56 5";
+    sscanf(data, "%d,%d,%d,%d,%d,%d", &e, &l, &h, &s, &f, &p);
+    Serial.println(data);
+  }
+  // delay(1000);
+}
