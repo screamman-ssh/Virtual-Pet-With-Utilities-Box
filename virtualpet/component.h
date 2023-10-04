@@ -200,7 +200,7 @@ static const uint32_t temp_data[1][96] = {
 #define rain 6
 #define snow 9
 #define atmosphere 12
-#define clear 15
+#define clears 15
 #define clouds 18
 static const uint32_t weather_data[21][104] = {
 {

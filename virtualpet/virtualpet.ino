@@ -22,6 +22,7 @@ unsigned int bright = 50;
 time_t sec_time;
 unsigned long last_time, ignore_time;
 uint8_t frame, behave;
+uint8_t spec_behave, update_behave;
 float energyStatus, loveStatus, happyStatus;
 uint8_t background;
 uint8_t cat_skin;
@@ -47,6 +48,9 @@ void setup() {
   SerialPort.begin(115200, SERIAL_8N1, 16, 17);
   randomSeed((unsigned) time(&sec_time));
   energyStatus = 100;
+  loveStatus = 100;
+  happyStatus = 100;
+  update_behave = true;
   graphic.setup();
   graphic.setBackground(background_data[0]);
   dht.begin(); 
@@ -60,16 +64,17 @@ uint8_t main_menu = 6;
 uint8_t mode = 1;
 
 void loop() { 
-  size_t freeHeap = ESP.getFreeHeap();
-  Serial.print("Free Heap Memory: ");
-  Serial.print(freeHeap);
-  Serial.println(" bytes");
+  // size_t freeHeap = ESP.getFreeHeap();
+  // Serial.print("Free Heap Memory: ");
+  // Serial.print(freeHeap);
+  // Serial.println(" bytes");
   //Serial.println(energyStatus);
 
   bright = int((analogRead(27)/4095.0) * 100);
   bright > 1 ? : bright = 1;
-  Serial.println(bright);
+  // Serial.println(bright);
   graphic.setBrightness(bright);
+
 
   update_data_to_odroid();
 
@@ -168,7 +173,6 @@ void select_cat_skin(uint8_t skin){
 }
 
 void display_pet(){
-  static uint8_t spec_behave;
   static uint8_t rand_frame;
   static uint8_t menu;
   static unsigned long status_time;
@@ -215,6 +219,7 @@ void display_pet(){
           rand_frame = spec_behave == 1? (100 - ceil(energyStatus)): 60;
           frame = 0;
         }else{
+          spec_behave == 2 ? loveStatus = 100 : loveStatus = loveStatus;
           spec_behave = 0;
         }
       }else if(behave != 8 && behave != 9 && behave != 6 && behave != 7){
@@ -271,7 +276,7 @@ void display_pet(){
       case 10 : graphic.draw(sel_cat_sleep[frame % CAT_SLEEP_FRAME], 0, 0); break;
     }
     frame++;
-    energyStatus > 0 ? energyStatus -= 0.001 : energyStatus = 0;
+    energyStatus > 0 ? energyStatus -= 0.01 : energyStatus = 0;
     loveStatus > 0 ? loveStatus -= 0.005 : loveStatus = 0;
     happyStatus > 0 ? happyStatus -= 0.001 : happyStatus = 0;
     delay(150);
@@ -288,7 +293,7 @@ void display_pet(){
         graphic.drawWithColor(number3x5_data[(int)ceil(energyStatus) % 10],0xffeaeaea, 5, 3, 8, 10);
       }
     }else if(menu == 1){
-      if(ceil(energyStatus) == 100){
+      if(ceil(loveStatus) == 100){
         graphic.drawWithColor(number3x5_data[1],0xffeaeaea, 5, 3, 0, 10);
         graphic.drawWithColor(number3x5_data[0],0xffeaeaea, 5, 3, 4, 10);
         graphic.drawWithColor(number3x5_data[0],0xffeaeaea, 5, 3, 8, 10);
@@ -297,7 +302,7 @@ void display_pet(){
         graphic.drawWithColor(number3x5_data[(int)ceil(loveStatus) % 10],0xffeaeaea, 5, 3, 8, 10);
       }
     }else if(menu == 2){
-      if(ceil(energyStatus) == 100){
+      if(ceil(happyStatus) == 100){
         graphic.drawWithColor(number3x5_data[1],0xffeaeaea, 5, 3, 0, 10);
         graphic.drawWithColor(number3x5_data[0],0xffeaeaea, 5, 3, 4, 10);
         graphic.drawWithColor(number3x5_data[0],0xffeaeaea, 5, 3, 8, 10);
@@ -360,7 +365,7 @@ void display_change_background_pet(){
 
 void update_data_to_odroid(){
   char send_data[20];
-  sprintf(send_data, "%d,%d,%d,%d,%d,%d", (int)ceil(energyStatus), (int)ceil(energyStatus), (int)ceil(energyStatus), 0, 0, 0);
+  sprintf(send_data, "%d,%d,%d", (int)ceil(energyStatus), (int)ceil(loveStatus), (int)ceil(happyStatus));
   int e, l, h, s, f, p;
   if (SerialPort.available())
   {
@@ -375,7 +380,20 @@ void update_data_to_odroid(){
     }
     //data = "100 100 12 54 56 5";
     sscanf(data, "%d,%d,%d,%d,%d,%d", &e, &l, &h, &s, &f, &p);
-    Serial.println(data);
+    // Serial.println(data);
+    spec_behave = (f == 1 || p == 1) ? (f == 1 ? 1 : 2) : spec_behave;
   }
-  // delay(1000);
 }
+
+void update_behave_to_odroid(){
+  char send_data[20];
+  
+  int e, l, h, s, f, p;
+  if (SerialPort.available())
+  {
+    char data[100] = {};
+    SerialPort.write('U');
+    SerialPort.write(send_data);
+  }
+}
+
