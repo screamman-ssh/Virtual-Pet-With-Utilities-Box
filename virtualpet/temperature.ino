@@ -3,7 +3,9 @@ uint32_t temp_color_array[] = {0xffbf5f00, 0xffbf0000, 0xffbf005f, 0xff6e00bc, 0
 uint8_t temp_color = 0;
 char weather[20] = {};
 
+
 void display_temp(Graphic16x16 graphic){
+  static uint8_t  startframe;
   int t = (int)dht.readTemperature();
   temp_color = temp_color_selector(t);
   graphic.setBackground(temp_color_array[temp_color]);
@@ -17,8 +19,18 @@ void display_temp(Graphic16x16 graphic){
   graphic.drawWithColor(alphabet3x5_data[2],0xffeaeaea,5,3,12,2);
 
   //Weather Icon
-  graphic.draw(weather_data[0], 8, 13, 0, 8);
-  delay(50);
+  switch(0){
+    case 0 : startframe = thunderstorm; break;
+    case 1 : startframe = drizzle; break;
+    case 2 : startframe = rain; break;
+    case 3 : startframe = snow; break;
+    case 4 : startframe = atmosphere; break;
+    case 5 : startframe = clears; break;
+    case 6 : startframe = clouds; break;
+  }
+  graphic.draw(weather_data[(frame%3)+startframe], 8, 13, 2, 8);
+  frame++;
+  delay(250);
   graphic.display();
 }
 

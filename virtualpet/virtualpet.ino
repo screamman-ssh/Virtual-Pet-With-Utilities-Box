@@ -13,20 +13,25 @@
 #include <string.h>
 #include <HardwareSerial.h>
 #include <EEPROM.h>
+#include <esp_task_wdt.h>
 #define DHTPIN 23        
-#define DHTTYPE DHT11     
+#define DHTTYPE DHT11 
+#define WDT_TIMEOUT 5    
 DHT dht(DHTPIN, DHT11);
 tmElements_t tm; 
 Graphic16x16 graphic;
 HardwareSerial SerialPort(2);
 unsigned int bright = 50;
 time_t sec_time;
+uint8_t main_menu = 6;
+uint8_t mode = 1;
 unsigned long last_time, ignore_time;
 uint8_t frame, behave;
 uint8_t spec_behave, update_behave;
 float energyStatus, loveStatus, happyStatus;
-uint8_t background;
-uint8_t cat_skin;
+uint8_t background, cat_skin;
+uint8_t digit_clock_color, bg_clock_color;
+uint8_t calendar_mode;
 uint32_t const (*sel_cat_love)[256];
 uint32_t const (*sel_cat_sleep)[256];
 uint32_t const (*sel_cat_lay)[256];
@@ -58,13 +63,19 @@ void setup() {
   Wire.begin();
   EEPROM.begin(512);
   uint8_t t = EEPROM.read(0);
+  select_cat_skin(t & 0x0F);
+  background = t >> 4;
   Serial.println(t, HEX);
+  t = EEPROM.read(1);
+  digit_clock_color = t & 0x0F;
+  bg_clock_color = t >> 4;
+  t = EEPROM.read(2);
+  calendar_mode = t;
   ignore_time = millis() + 10100;
-  background = 0;
-  select_cat_skin(cat_skin);
+
+  esp_task_wdt_init(WDT_TIMEOUT, true);
+  esp_task_wdt_add(NULL);
 }
-uint8_t main_menu = 6;
-uint8_t mode = 1;
 
 void loop() { 
   // size_t freeHeap = ESP.getFreeHeap();
@@ -81,6 +92,7 @@ void loop() {
 
   graphic.clear();
   if((millis() - ignore_time) > 10000 || mode != 0){
+    esp_task_wdt_reset();
     switch(main_menu){
       case 0 : display_clock(graphic);break;
       case 1 : display_temp(graphic);break;
@@ -92,6 +104,7 @@ void loop() {
       default : display_pet();
     }
   }else{ 
+    esp_task_wdt_reset();
     if(mode == 0){
       graphic.draw(menu_icon_data[main_menu], 0, 0);
     }
@@ -102,34 +115,36 @@ void loop() {
     // if(!digitalRead(32)){
     //   ignore_time = millis();
     // }
-    if(mode == 0){
-      if(!digitalRead(33)){
-        if(mode == 0){
-          main_menu < 6 ? main_menu++ : main_menu = 0;
-          ignore_time = millis();
-          while(!digitalRead(33));
+    while((millis() - last_time) < 100){
+      //Serial.println("Interrupt");
+      if(mode == 0){
+        if(!digitalRead(33)){
+          if(mode == 0){
+            main_menu < 6 ? main_menu++ : main_menu = 0;
+            ignore_time = millis();
+            while(!digitalRead(33));
+          }
+        }
+        if(!digitalRead(34)){
+          if(mode == 0){
+            main_menu > 0 ? main_menu-- : main_menu = 6;
+            ignore_time = millis();
+            while(!digitalRead(34));
+          }
         }
       }
-      if(!digitalRead(34)){
-        if(mode == 0){
-          main_menu > 0 ? main_menu-- : main_menu = 6;
-          ignore_time = millis();
-          while(!digitalRead(34));
+      if(mode != 2){
+        if(!digitalRead(35)){
+          if(mode != 0){
+            mode = 0;
+            ignore_time = millis();
+          }else if(mode == 0){
+            ignore_time += 10000;
+            mode = 1;
+          }
+          while(!digitalRead(35));
         }
       }
-    }
-    if(mode != 2){
-      if(!digitalRead(35)){
-        if(mode != 0){
-          get_weather_from_odroid();
-          mode = 0;
-          ignore_time = millis();
-        }else if(mode == 0){
-          ignore_time += 10000;
-          mode = 1;
-        }
-      }
-      while(!digitalRead(35));
     }
   }
 }
@@ -300,15 +315,6 @@ void display_pet(){
         graphic.drawWithColor(number3x5_data[(int)ceil(energyStatus) % 10],0xffeaeaea, 5, 3, 8, 10);
       }
     }else if(menu == 1){
-      if(ceil(loveStatus) == 100){
-        graphic.drawWithColor(number3x5_data[1],0xffeaeaea, 5, 3, 0, 10);
-        graphic.drawWithColor(number3x5_data[0],0xffeaeaea, 5, 3, 4, 10);
-        graphic.drawWithColor(number3x5_data[0],0xffeaeaea, 5, 3, 8, 10);
-      }else{
-        graphic.drawWithColor(number3x5_data[(int)ceil(loveStatus) / 10],0xffeaeaea, 5, 3, 4, 10);
-        graphic.drawWithColor(number3x5_data[(int)ceil(loveStatus) % 10],0xffeaeaea, 5, 3, 8, 10);
-      }
-    }else if(menu == 2){
       if(ceil(happyStatus) == 100){
         graphic.drawWithColor(number3x5_data[1],0xffeaeaea, 5, 3, 0, 10);
         graphic.drawWithColor(number3x5_data[0],0xffeaeaea, 5, 3, 4, 10);
@@ -316,6 +322,15 @@ void display_pet(){
       }else{
         graphic.drawWithColor(number3x5_data[(int)ceil(happyStatus) / 10],0xffeaeaea, 5, 3, 4, 10);
         graphic.drawWithColor(number3x5_data[(int)ceil(happyStatus) % 10],0xffeaeaea, 5, 3, 8, 10);
+      }
+    }else if(menu == 2){
+      if(ceil(loveStatus) == 100){
+        graphic.drawWithColor(number3x5_data[1],0xffeaeaea, 5, 3, 0, 10);
+        graphic.drawWithColor(number3x5_data[0],0xffeaeaea, 5, 3, 4, 10);
+        graphic.drawWithColor(number3x5_data[0],0xffeaeaea, 5, 3, 8, 10);
+      }else{
+        graphic.drawWithColor(number3x5_data[(int)ceil(loveStatus) / 10],0xffeaeaea, 5, 3, 4, 10);
+        graphic.drawWithColor(number3x5_data[(int)ceil(loveStatus) % 10],0xffeaeaea, 5, 3, 8, 10);
       }
     }
 
@@ -410,4 +425,3 @@ void get_weather_from_odroid(){
   //   Serial.println(r);
   // }
 }
-
