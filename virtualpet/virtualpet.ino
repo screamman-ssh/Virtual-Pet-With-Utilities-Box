@@ -12,6 +12,7 @@
 #include <DS1307RTC.h>
 #include <string.h>
 #include <HardwareSerial.h>
+#include <EEPROM.h>
 #define DHTPIN 23        
 #define DHTTYPE DHT11     
 DHT dht(DHTPIN, DHT11);
@@ -55,6 +56,9 @@ void setup() {
   graphic.setBackground(background_data[0]);
   dht.begin(); 
   Wire.begin();
+  EEPROM.begin(512);
+  uint8_t t = EEPROM.read(0);
+  Serial.println(t, HEX);
   ignore_time = millis() + 10100;
   background = 0;
   select_cat_skin(cat_skin);
@@ -71,7 +75,7 @@ void loop() {
 
   bright = int((analogRead(27)/4095.0) * 100);
   bright > 1 ? : bright = 1;
-  Serial.println(bright);
+  // Serial.println(bright);
   graphic.setBrightness(bright);
 
 
@@ -335,6 +339,10 @@ void display_change_skin_pet(){
       behave = 2;
       main_menu = 6;
       while(!digitalRead(32));
+      uint8_t cur_data = EEPROM.read(0);
+      cur_data &= 0xF0;
+      EEPROM.write(0, cat_skin | cur_data );
+      EEPROM.commit();
     }
   }
   select_cat_skin(cat_skin);
@@ -358,6 +366,10 @@ void display_change_background_pet(){
       behave = 2;
       main_menu = 6;
       while(!digitalRead(32));
+      uint8_t cur_data = EEPROM.read(0);
+      cur_data &= 0x0F;
+      EEPROM.write(0, (background << 4) | cur_data );
+      EEPROM.commit();
     }
   }
   graphic.setBackground(background_data[background]);
@@ -383,7 +395,7 @@ void update_data_to_odroid(){
     }
     //data = "100 100 12 54 56 5";
     sscanf(data, "%d,%d,%d,%d,%d,%d", &e, &l, &h, &s, &f, &p);
-    Serial.println(data);
+    // Serial.println(data);
     spec_behave = (f == 1 || p == 1) ? (f == 1 ? 1 : 2) : spec_behave;
   }
 }
