@@ -3,8 +3,7 @@ unsigned long lasttime;
 bool blink = true;
 uint32_t color[] = {0x00000000, 0xffeaeaea, 0xff0000bf, 0xffbf5f00, 0xff62b217, 0xff007fff}; 
 
-void display_clock(Graphic16x16 graphic){
-
+void display_clock(){
   read_sw_digital_clock();
   if(RTC.read(tm)){
     graphic.setBackground(color[bg_clock_color]);

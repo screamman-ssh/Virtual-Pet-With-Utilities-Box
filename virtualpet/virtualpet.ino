@@ -89,14 +89,13 @@ void loop() {
   // Serial.println(bright);
   graphic.setBrightness(bright);
 
-
   graphic.clear();
   if((millis() - ignore_time) > 10000 || mode != 0){
     esp_task_wdt_reset();
     switch(main_menu){
-      case 0 : display_clock(graphic);break;
-      case 1 : display_temp(graphic);break;
-      case 2 : display_calendar(graphic);break;
+      case 0 : display_clock();break;
+      case 1 : display_temp();break;
+      case 2 : display_calendar();break;
       case 3 : display_snake_game();break;
       case 4 : display_change_skin_pet();break;
       case 5 : display_change_background_pet();break;
@@ -115,36 +114,37 @@ void loop() {
     // if(!digitalRead(32)){
     //   ignore_time = millis();
     // }
-    while((millis() - last_time) < 100){
-      //Serial.println("Interrupt");
-      if(mode == 0){
-        if(!digitalRead(33)){
-          if(mode == 0){
-            main_menu < 6 ? main_menu++ : main_menu = 0;
-            ignore_time = millis();
-            while(!digitalRead(33));
-          }
-        }
-        if(!digitalRead(34)){
-          if(mode == 0){
-            main_menu > 0 ? main_menu-- : main_menu = 6;
-            ignore_time = millis();
-            while(!digitalRead(34));
-          }
+    if(mode == 0){
+      if(!digitalRead(33)){
+        if(mode == 0){
+          main_menu < 6 ? main_menu++ : main_menu = 0;
+          ignore_time = millis();
+          while(!digitalRead(33));
+          Serial.println(main_menu);
         }
       }
-      if(mode != 2){
-        if(!digitalRead(35)){
-          if(mode != 0){
-            mode = 0;
-            ignore_time = millis();
-          }else if(mode == 0){
-            ignore_time += 10000;
-            mode = 1;
-          }
-          while(!digitalRead(35));
+      if(!digitalRead(34)){
+        if(mode == 0){
+          main_menu > 0 ? main_menu-- : main_menu = 6;
+          ignore_time = millis();
+          while(!digitalRead(34));
+          Serial.println(main_menu);
         }
       }
+    }
+    if(mode != 2){
+      if(!digitalRead(35)){
+        if(mode != 0){
+          mode = 0;
+          ignore_time = millis();
+        }else if(mode == 0){
+          ignore_time += 10000;
+          mode = 1;
+          Serial.print("Current Page : ");
+          Serial.println(main_menu);
+        }
+      }
+      while(!digitalRead(35));
     }
   }
 }
@@ -196,9 +196,10 @@ void display_pet(){
   static bool status;
   if((millis() - update_behave) > 1000){
     update_behave = millis();
-    update_data_to_odroid();
+    // update_data_to_odroid();
+    update_data_to_odroid(0);
   }
-  update_data_to_odroid();
+  // update_data_to_odroid();
   if(!digitalRead(32)){
     if(!status){
       status = true;
@@ -393,35 +394,40 @@ void display_change_background_pet(){
 }
 
 
-void update_data_to_odroid(){
-  char send_data[20];
-  sprintf(send_data, "%d,%d,%d,%d,%d", (int)ceil(energyStatus), (int)ceil(loveStatus), (int)ceil(happyStatus), 0, 0);
-  int e, l, h, s, f, p;
-  if (SerialPort.available())
-  {
-    char data[100] = {};
-    SerialPort.write('U');
-    SerialPort.write(send_data);
-    int i = 0;
-    while(SerialPort.available()){
-      char r = SerialPort.read();
-      data[i] = r;
-      i++;
+void update_data_to_odroid(uint8_t mode){
+  if(mode == 0){
+    char send_data[20];
+    sprintf(send_data, "%d,%d,%d,%d,%d", (int)ceil(energyStatus), (int)ceil(loveStatus), (int)ceil(happyStatus), 0, 0);
+    int e, l, h, s, f, p;
+    if (SerialPort.available())
+    {
+      char data[100] = {};
+      SerialPort.write('U');
+      SerialPort.write(send_data);
+      int i = 0;
+      while(SerialPort.available()){
+        char r = SerialPort.read();
+        data[i] = r;
+        i++;
+      }
+      //data = "100 100 12 54 56 5";
+      sscanf(data, "%d,%d,%d,%d,%d,%d", &e, &l, &h, &s, &f, &p);
+      // Serial.println(data);
+      spec_behave = (f == 1 || p == 1) ? (f == 1 ? 1 : 2) : spec_behave;
     }
-    //data = "100 100 12 54 56 5";
-    sscanf(data, "%d,%d,%d,%d,%d,%d", &e, &l, &h, &s, &f, &p);
-    // Serial.println(data);
-    spec_behave = (f == 1 || p == 1) ? (f == 1 ? 1 : 2) : spec_behave;
+  }else if(mode == 1){
+    int w;
+    if (SerialPort.available())
+    {
+      SerialPort.flush();
+      SerialPort.write('W');
+      char r = SerialPort.read();
+      Serial.println(r);
+    }
   }
+  
 }
 
 void get_weather_from_odroid(){
-  // int w;
-  // if (SerialPort.available())
-  // {
-  //   SerialPort.flush();
-  //   SerialPort.write('W');
-  //   char r = SerialPort.read();
-  //   Serial.println(r);
-  // }
+  
 }

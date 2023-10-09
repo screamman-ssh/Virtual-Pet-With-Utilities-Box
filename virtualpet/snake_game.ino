@@ -11,6 +11,7 @@ void display_snake_game(){
     mode = 2;
   graphic.clear();
   sw_snakegame();
+
   if (food_empty){
     spawn_food();
   }
@@ -58,7 +59,7 @@ void display_snake_game(){
       delay(300); 
     }
     mode = 1;
-    while(digitalRead(32) && digitalRead(35));
+    while(digitalRead(32) && digitalRead(35)) esp_task_wdt_reset();;
     if(!digitalRead(32) || !digitalRead(35)){
       alive = 1;
       snake_len = 1;

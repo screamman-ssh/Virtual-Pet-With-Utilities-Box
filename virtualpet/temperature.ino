@@ -4,7 +4,12 @@ uint8_t temp_color = 0;
 char weather[20] = {};
 
 
-void display_temp(Graphic16x16 graphic){
+void display_temp(){
+  if((millis() - update_behave) > 10000){
+    update_behave = millis();
+    // update_data_to_odroid();
+    update_data_to_odroid(1);
+  }
   static uint8_t  startframe;
   int t = (int)dht.readTemperature();
   temp_color = temp_color_selector(t);
