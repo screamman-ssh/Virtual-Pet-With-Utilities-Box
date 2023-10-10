@@ -51,67 +51,51 @@ def read_sheet():
     except HttpError as err:
         print(err)
 
-def update_value(parameter, value):
-    creds = get_creds()
-    columns_range = {'Energy' : 'Sheet1!B2', 'Loveliness' :  'Sheet1!B3', 'Happiness' :  'Sheet1!B4', 'Feed' : 'Sheet1!B6', 'Pet' :  'Sheet1!B7'}
-    try:
-        service = build('sheets', 'v4', credentials=creds)
-        values = [
-            [value],
-        ]
-        body = {
-            'values': values
-        }
-        result = service.spreadsheets().values().update(spreadsheetId=SPREADSHEET_ID, range=columns_range[parameter],valueInputOption="USER_ENTERED", body=body).execute()
-        print(f"{result.get('updatedCells')} cells updated.")
-        return result
-    except HttpError as error:
-        print(f"An error occurred: {error}")
-        return error
+# def update_value(parameter, value):
+#     creds = get_creds()
+#     columns_range = {'Energy' : 'Sheet1!B2', 'Loveliness' :  'Sheet1!B3', 'Happiness' :  'Sheet1!B4', 'Feed' : 'Sheet1!B6', 'Pet' :  'Sheet1!B7'}
+#     try:
+#         service = build('sheets', 'v4', credentials=creds)
+#         values = [
+#             [value],
+#         ]
+#         body = {
+#             'values': values
+#         }
+#         result = service.spreadsheets().values().update(spreadsheetId=SPREADSHEET_ID, range=columns_range[parameter],valueInputOption="USER_ENTERED", body=body).execute()
+#         print(f"{result.get('updatedCells')} cells updated.")
+#         return result
+#     except HttpError as error:
+#         print(f"An error occurred: {error}")
+#         return error
 
 def update_batches_value(values):
     creds = get_creds()
     columns_range = {'Energy' : 'Sheet1!B2', 'Loveliness' :  'Sheet1!B3', 'Happiness' :  'Sheet1!B4', 'Feed' : 'Sheet1!B6', 'Pet' :  'Sheet1!B7'}
     try:
         service = build('sheets', 'v4', credentials=creds)
-        if(len(values) == 3):
-            data = [
-                {
-                    'range':  columns_range['Energy'],
-                    'values': [[values[0]]]
-                },
-                {
-                    'range':  columns_range['Loveliness'],
-                    'values': [[values[1]]]
-                },
-                {
-                    'range':  columns_range['Happiness'],
-                    'values': [[values[2]]]
-                }
-            ]
-        elif(len(values) == 5):
-            data = [
-                {
-                    'range':  columns_range['Energy'],
-                    'values': [[values[0]]]
-                },
-                {
-                    'range':  columns_range['Loveliness'],
-                    'values': [[values[1]]]
-                },
-                {
-                    'range':  columns_range['Happiness'],
-                    'values': [[values[2]]]
-                },
-                {
-                    'range':  columns_range['Feed'],
-                    'values': [[values[3]]]
-                },
-                {
-                    'range':  columns_range['Pet'],
-                    'values': [[values[4]]]
-                }
-            ]
+        data = [
+            {
+                'range':  columns_range['Energy'],
+                'values': [[values[0]]]
+            },
+            {
+                'range':  columns_range['Loveliness'],
+                'values': [[values[1]]]
+            },
+            {
+                'range':  columns_range['Happiness'],
+                'values': [[values[2]]]
+            },
+            {
+                'range':  columns_range['Feed'],
+                'values': [[values[3]]]
+            },
+            {
+                'range':  columns_range['Pet'],
+                'values': [[values[4]]]
+            }
+        ]
         body = {
             'valueInputOption' : "USER_ENTERED",
             'data' : data
