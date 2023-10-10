@@ -5,12 +5,11 @@ char weather[20] = {};
 
 
 void display_temp(){
-  if((millis() - update_behave) > 10000){
+  static uint8_t  startframe;
+  if((millis() - update_behave) > 1000){
     update_behave = millis();
-    // update_data_to_odroid();
     update_data_to_odroid(1);
   }
-  static uint8_t  startframe;
   int t = (int)dht.readTemperature();
   temp_color = temp_color_selector(t);
   graphic.setBackground(temp_color_array[temp_color]);
@@ -23,8 +22,7 @@ void display_temp(){
   graphic.draw(blink? 0xffeaeaea :temp_color_array[temp_color] ,10,2);
   graphic.drawWithColor(alphabet3x5_data[2],0xffeaeaea,5,3,12,2);
 
-  //Weather Icon
-  switch(0){
+  switch(weather_status){
     case 0 : startframe = thunderstorm; break;
     case 1 : startframe = drizzle; break;
     case 2 : startframe = rain; break;

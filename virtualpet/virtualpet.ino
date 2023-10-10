@@ -32,6 +32,7 @@ float energyStatus, loveStatus, happyStatus;
 uint8_t background, cat_skin;
 uint8_t digit_clock_color, bg_clock_color;
 uint8_t calendar_mode;
+uint8_t weather_status;
 uint32_t const (*sel_cat_love)[256];
 uint32_t const (*sel_cat_sleep)[256];
 uint32_t const (*sel_cat_lay)[256];
@@ -196,10 +197,9 @@ void display_pet(){
   static bool status;
   if((millis() - update_behave) > 1000){
     update_behave = millis();
-    // update_data_to_odroid();
     update_data_to_odroid(0);
   }
-  // update_data_to_odroid();
+
   if(!digitalRead(32)){
     if(!status){
       status = true;
@@ -427,13 +427,13 @@ void update_data_to_odroid(uint8_t mode){
         data[i] = r;
         i++;
       }
-      if(data[0] == 'W')
+      if(data[0] == 'W'){
         Serial.println(data[1]);
+        weather_status = data[1] - '0';
+        Serial.println(weather_status);
+      }
     }
   }
   
 }
 
-void get_weather_from_odroid(){
-  
-}
