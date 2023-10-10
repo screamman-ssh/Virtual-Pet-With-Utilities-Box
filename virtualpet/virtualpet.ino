@@ -86,7 +86,7 @@ void loop() {
 
   bright = int((analogRead(27)/4095.0) * 100);
   bright > 1 ? : bright = 1;
-  // Serial.println(bright);
+  Serial.println(bright);
   graphic.setBrightness(bright);
 
   graphic.clear();
@@ -412,17 +412,23 @@ void update_data_to_odroid(uint8_t mode){
       }
       //data = "100 100 12 54 56 5";
       sscanf(data, "%d,%d,%d,%d,%d,%d", &e, &l, &h, &s, &f, &p);
-      // Serial.println(data);
+      Serial.println(data);
       spec_behave = (f == 1 || p == 1) ? (f == 1 ? 1 : 2) : spec_behave;
     }
   }else if(mode == 1){
     int w;
     if (SerialPort.available())
     {
-      SerialPort.flush();
+      char data[20] = {};
       SerialPort.write('W');
-      char r = SerialPort.read();
-      Serial.println(r);
+      int i = 0;
+      while(SerialPort.available()){
+        char r = SerialPort.read();
+        data[i] = r;
+        i++;
+      }
+      if(data[0] == 'W')
+        Serial.println(data[1]);
     }
   }
   
