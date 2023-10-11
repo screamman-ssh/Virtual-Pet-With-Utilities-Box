@@ -17,10 +17,10 @@
 #define DHTPIN 23        
 #define DHTTYPE DHT11 
 #define WDT_TIMEOUT 5    
-DHT dht(DHTPIN, DHT11);
+DHT dht(DHTPIN, DHT11);            //กำหนดค่าเริ่มต้นให้ DHT11
 tmElements_t tm; 
-Graphic16x16 graphic;
-HardwareSerial SerialPort(2);
+Graphic16x16 graphic;              //สร้าง Object จาก Graphic16x16
+HardwareSerial SerialPort(2);      //เปิดใช้งาน UART2
 unsigned int bright = 50;
 time_t sec_time;
 uint8_t main_menu = 6;
@@ -46,14 +46,18 @@ uint32_t const (*sel_cat_walk_back_l)[256];
 uint32_t const (*sel_cat_walk_back_r)[256];
 
 void setup() { 
+  //กำหนดการทำงานของขาที่ใช้เป็นอินพุต
   pinMode(32, INPUT);
   pinMode(33, INPUT);
   pinMode(34, INPUT);
   pinMode(35, INPUT);
   pinMode(27, INPUT);
+  //กำหนดค่าให้กับการเชื่อมต่อเเบบ Serial
   Serial.begin(115200);
   SerialPort.begin(115200, SERIAL_8N1, 16, 17);
+  //กำหนด Seed ให้กับฟังก์ชัน random
   randomSeed((unsigned) time(&sec_time));
+  //กำหนดค่าสถานะเริ่มต้นต่างๆเเละเปิดใช้งานไลบรารี่ให้กับโปรเเกรม
   energyStatus = 100;
   loveStatus = 100;
   happyStatus = 100;
@@ -62,6 +66,7 @@ void setup() {
   graphic.setBackground(background_data[0]);
   dht.begin(); 
   Wire.begin();
+  //เริ่มต้นการใช้งานเเละอ่านค่าจาก EEPROM
   EEPROM.begin(512);
   uint8_t t = EEPROM.read(0);
   select_cat_skin(t & 0x0F);
@@ -72,10 +77,11 @@ void setup() {
   bg_clock_color = t >> 4;
   t = EEPROM.read(2);
   calendar_mode = t;
-  ignore_time = millis() + 10100;
-
-  esp_task_wdt_init(WDT_TIMEOUT, true);
+  //เริ่มต้นการใช้งานเเละกำหนดค่าให้ Watchdog
+  esp_task_wdt_init(WDT_TIMEOUT, true); //WDT_TIMROUT = 5
   esp_task_wdt_add(NULL);
+  //เริ่มเเสดงหน้าโหมด
+  ignore_time = millis() + 10100;
 }
 
 void loop() { 
@@ -85,11 +91,11 @@ void loop() {
   // Serial.println(" bytes");
   //Serial.println(energyStatus);
 
+  //กำหนดค่าความสว่างให้กับ LED
   bright = int((analogRead(27)/4095.0) * 100);
   bright > 1 ? : bright = 1;
-  Serial.println(bright);
   graphic.setBrightness(bright);
-
+  //เลือกการทำงานในโหมดต่างๆเเละเเสดงผล
   graphic.clear();
   if((millis() - ignore_time) > 10000 || mode != 0){
     esp_task_wdt_reset();
@@ -110,11 +116,9 @@ void loop() {
     }
     graphic.display();
   }
+  //อ่านค่าจากปุ่มกด 4 ปุ่ม
   if((millis() - last_time) > 150){
     last_time = millis();
-    // if(!digitalRead(32)){
-    //   ignore_time = millis();
-    // }
     if(mode == 0){
       if(!digitalRead(33)){
         if(mode == 0){
@@ -150,6 +154,7 @@ void loop() {
   }
 }
 
+//กำหนดตำเเหน่งหน่วยของจำของข้อมูลชนิดเเมวที่จะใช้เเสดงผล
 void select_cat_skin(uint8_t skin){
   if(skin == 0){
     sel_cat_love = cat_love_data;
@@ -190,16 +195,18 @@ void select_cat_skin(uint8_t skin){
   }
 }
 
+//โหมดเลี้ยงเเมว
 void display_pet(){
   static uint8_t rand_frame;
   static uint8_t menu;
   static unsigned long status_time;
   static bool status;
+  //อัพเดตเเละรับข้อมูลผ่าน Odroid-C4 ที่ติดต่่อฐานข้อมูลหรือ Google Sheet
   if((millis() - update_behave) > 1000){
     update_behave = millis();
     update_data_to_odroid(0);
   }
-
+  //อ่านค่าจากปุ่มกด
   if(!digitalRead(32)){
     if(!status){
       status = true;
@@ -222,15 +229,15 @@ void display_pet(){
       spec_behave = 1;
     }
   }
-
+  //จับเวลาการเเสดงผลหน้าจอเเสดงสถานะของเเมว
   if((millis() - status_time) > 5000)
     status = false;
 
+  //เเสดงผลเเมวในกริยาต่างๆเเละเปลี่ยนเเปลงค่าสถานะของเเมว
   if(!status){
-    if(mode != 1){
-      mode = 1;
-    }
+    //กำหนดฉากพื้นหลัง
     graphic.setBackground(background_data[background]);
+    //ตรวจสอบว่าเป็นกริยาของการโต้ตอบหรือไม่ (การกินเเละการมอบความรัก)
     if(spec_behave){
       if((behave == 4 && frame > 15) || (behave == 5 && frame > 15)){
         behave = behave == 4 ? 6 : 7;
@@ -251,7 +258,7 @@ void display_pet(){
         frame = 0;
       }
     }
-
+    //เปลี่ยนเเปลงกริยาเเละระยะเวลาในการเเสดงผลกริยานั้นๆ
     if((frame == rand_frame) && !spec_behave){
       if(behave == 4 || behave == 5){
         behave = behave == 4 ? 6 : 7;
@@ -265,12 +272,13 @@ void display_pet(){
       }
       frame = 0;
     }
-
+    //ตรวจสอบว่าค่าสถานะพลังงานเป็น 0 เเล้วหรือยัง
     if(energyStatus == 0 & behave != 8){
+      //ถ้าใช่ ก็ให้เเมวเเสดงกริยาหลับ
       behave = 10;
       rand_frame += 1;
     }
-
+    //เเสดงผลเเมวตามกริยาที่ได้ถูกสุ่มหรือถูกกำหนด
     switch(behave){
       case 0 : graphic.draw(sel_cat_sit[frame % CAT_SIT_FRAME], 0, 0); break;
       case 1 : graphic.draw(sel_cat_lay[frame % CAT_LAY_FRAME], 0, 0); break;
@@ -299,11 +307,13 @@ void display_pet(){
       case 10 : graphic.draw(sel_cat_sleep[frame % CAT_SLEEP_FRAME], 0, 0); break;
     }
     frame++;
-    energyStatus > 0 ? energyStatus -= 0.01 : energyStatus = 0;
-    loveStatus > 0 ? loveStatus -= 0.005 : loveStatus = 0;
-    happyStatus > 0 ? happyStatus -= 0.001 : happyStatus = 0;
+    //เปลี่ยนเเปลงค่าสถานะต่างๆ
+    energyStatus > 0 ? energyStatus -= ((loveStatus < 50 || happyStatus < 50) ? 0.015 : 0.01 ) : energyStatus = 0;
+    loveStatus > 0 ? loveStatus -= 0.008 : loveStatus = 0;
+    happyStatus > 0 ? happyStatus -= 0.005 : happyStatus = 0;
     delay(150);
   }else{
+    //เเสดงหน้าจอเเสดงค่าสถานะต่างๆของเเมว
     graphic.setBackground((uint8_t) 0x000000);
     graphic.draw(status_data[menu], 0, 0);
     if(menu == 0){
@@ -340,6 +350,7 @@ void display_pet(){
   graphic.display();
 }
 
+//โหมดเปลี่ยนชนิดเเมว
 void display_change_skin_pet(){
   graphic.setBackground(background_data[background]);
   if(mode != 0){
@@ -367,7 +378,7 @@ void display_change_skin_pet(){
   graphic.display();
   delay(150);
 }
-
+//โหมดเปลี่ยนฉากหลัง
 void display_change_background_pet(){
   if(mode != 0){
     if(!digitalRead(33)){
@@ -392,17 +403,18 @@ void display_change_background_pet(){
   graphic.display();
   delay(150);
 }
-
-
+//ฟังก์ชันการติดต่อระหว่าง ESP32 กับ Odroid-C4 ผ่าน UART 
 void update_data_to_odroid(uint8_t mode){
-  if(mode == 0){
+  if(mode == 0){ 
     char send_data[20];
     sprintf(send_data, "%d,%d,%d,%d,%d", (int)ceil(energyStatus), (int)ceil(loveStatus), (int)ceil(happyStatus), 0, 0);
     int e, l, h, s, f, p;
     if (SerialPort.available())
     {
       char data[100] = {};
+      //ส่งค่า U เพื่อบ่งบอกให้ Odroid รู้ว่าต้องการส่งข้อมูลขึ้นไปอัพเดตบน Google Sheet
       SerialPort.write('U');
+      //เเนบข้อมูลที่จะส่ง
       SerialPort.write(send_data);
       int i = 0;
       while(SerialPort.available()){
@@ -410,9 +422,9 @@ void update_data_to_odroid(uint8_t mode){
         data[i] = r;
         i++;
       }
-      //data = "100 100 12 54 56 5";
       sscanf(data, "%d,%d,%d,%d,%d,%d", &e, &l, &h, &s, &f, &p);
       Serial.println(data);
+      //ตรวจสอบว่าค่าการกิน (f) หรือการมอบความรัก (p) เป็น 1 หรือไม่
       spec_behave = (f == 1 || p == 1) ? (f == 1 ? 1 : 2) : spec_behave;
     }
   }else if(mode == 1){
@@ -420,6 +432,7 @@ void update_data_to_odroid(uint8_t mode){
     if (SerialPort.available())
     {
       char data[20] = {};
+      //ส่งค่า W เพื่อบ่งบอกให้ Odroid รู้ว่าต้องการดึงข้อมูลสภาพอากาศ
       SerialPort.write('W');
       int i = 0;
       while(SerialPort.available()){

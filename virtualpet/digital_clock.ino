@@ -1,11 +1,14 @@
-
 unsigned long lasttime;
 bool blink = true;
 uint32_t color[] = {0x00000000, 0xffeaeaea, 0xff0000bf, 0xffbf5f00, 0xff62b217, 0xff007fff}; 
 
+//โหมดนาฬิกาดิจิตอล
 void display_clock(){
+  //อ่านค่าปุ่มกดเพื่อเปลี่ยนสีพื้นหลังเเละตัวเลข
   read_sw_digital_clock();
+  //ตรวจสอบว่าสามารถอ่านค่าจาก RTC DS1307 ได้หรือไม่
   if(RTC.read(tm)){
+    //เเสดงผล
     graphic.setBackground(color[bg_clock_color]);
     graphic.drawWithColor(number3x5_data[tm.Hour/10],color[digit_clock_color],5,3,4,1);
     graphic.drawWithColor(number3x5_data[tm.Hour%10],color[digit_clock_color],5,3,8,1);
@@ -24,7 +27,9 @@ void display_clock(){
   
 }
 
+//ฟังก์ชันอ่านค่าจากปุ่มกดเพื่อเปลี่ยนสีพื้นหลังเเละตัวเลข
 void read_sw_digital_clock(){
+  //เปลี่ยนสีตัวเลข
   if(!digitalRead(32)){
     if((millis() - last_time) > 100){
         last_time = millis();
@@ -37,6 +42,7 @@ void read_sw_digital_clock(){
         EEPROM.commit();
     }
   }
+  //เปลี่ยนสีฉากหลัง
   if(!digitalRead(33)){
     if((millis() - last_time) > 100){
         last_time = millis();

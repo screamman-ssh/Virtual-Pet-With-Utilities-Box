@@ -1,17 +1,20 @@
 
 uint32_t temp_color_array[] = {0xffbf5f00, 0xffbf0000, 0xffbf005f, 0xff6e00bc, 0xff2828e2, 0xff0b0bea};
 uint8_t temp_color = 0;
-char weather[20] = {};
 
-
+//โหมดอุณหภูมิเเละสภาพอากาศ
 void display_temp(){
   static uint8_t  startframe;
-  if((millis() - update_behave) > 1000){
+  //อัพเดตค่าสภาพอากาศจาก Odroid-C4
+  if((millis() - update_behave) > 5000){
     update_behave = millis();
     update_data_to_odroid(1);
   }
+  //อ่านค่าอุณหภูมิจากมอดูล DHT11
   int t = (int)dht.readTemperature();
+  //รับค่าตำเเหน่งสีพื้นหลัง
   temp_color = temp_color_selector(t);
+  //เเสดงผล
   graphic.setBackground(temp_color_array[temp_color]);
   graphic.drawWithColor(number3x5_data[t/10],0xffeaeaea,5,3,2,2);
   graphic.drawWithColor(number3x5_data[t%10],0xffeaeaea,5,3,6,2);
@@ -19,9 +22,9 @@ void display_temp(){
     lasttime = millis();
     blink = !blink;
   }
-  graphic.draw(blink? 0xffeaeaea :temp_color_array[temp_color] ,10,2);
+  graphic.draw(blink? 0xffeaeaea : temp_color_array[temp_color] ,10,2);
   graphic.drawWithColor(alphabet3x5_data[2],0xffeaeaea,5,3,12,2);
-
+  //เลือกอนิเมชันสัญลักษณ์เเทนสภาพอากาศตามค่า weather_status 
   switch(weather_status){
     case 0 : startframe = thunderstorm; break;
     case 1 : startframe = drizzle; break;
@@ -37,6 +40,7 @@ void display_temp(){
   graphic.display();
 }
 
+//ฟังก์ชันกำหนดตำเเหน่งค่าสีตามช่วงอุณหภูมิต่างๆ
 uint8_t temp_color_selector(int temp){
   uint8_t tmp;
   if (temp > -20 && temp <= 10)
