@@ -42,7 +42,7 @@ while True:
                 time_diff = datetime.strptime(f"{datetime.now().hour}:{datetime.now().minute}:{datetime.now().second}", "%H:%M:%S") - datetime.strptime(last_time, "%H:%M:%S")
                 hour = time_diff.total_seconds() / (60 * 60)
                 print(hour)
-                if(hour > 3):
+                if(hour > 1):
                     weather = weatherAPI.get_weather()
                     last_time = f'{datetime.now().hour}:{datetime.now().minute}:{datetime.now().second}'
                 print(weather)
