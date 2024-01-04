@@ -1,6 +1,6 @@
 import requests
 
-API_KEY = 'd68e5322268edcce664382a80ef2e746'
+API_KEY = ''
 CITY_NAME = 'Songkhla'
 URL = f'https://api.openweathermap.org/data/2.5/weather?q={CITY_NAME}&appid={API_KEY}'
 

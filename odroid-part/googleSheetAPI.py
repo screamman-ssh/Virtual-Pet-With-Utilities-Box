@@ -12,7 +12,7 @@ from googleapiclient.errors import HttpError
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
 # The ID and range of a sample spreadsheet.
-SPREADSHEET_ID = '1ZCuj0-3AKcwWawn5OAm4ufcgzkuO6D-n8VyA_kbY0GU'
+SPREADSHEET_ID = ''
 SAMPLE_RANGE_NAME = 'Sheet1!A2:B'
 
 def get_creds():
@@ -50,24 +50,6 @@ def read_sheet():
         return values
     except HttpError as err:
         print(err)
-
-# def update_value(parameter, value):
-#     creds = get_creds()
-#     columns_range = {'Energy' : 'Sheet1!B2', 'Loveliness' :  'Sheet1!B3', 'Happiness' :  'Sheet1!B4', 'Feed' : 'Sheet1!B6', 'Pet' :  'Sheet1!B7'}
-#     try:
-#         service = build('sheets', 'v4', credentials=creds)
-#         values = [
-#             [value],
-#         ]
-#         body = {
-#             'values': values
-#         }
-#         result = service.spreadsheets().values().update(spreadsheetId=SPREADSHEET_ID, range=columns_range[parameter],valueInputOption="USER_ENTERED", body=body).execute()
-#         print(f"{result.get('updatedCells')} cells updated.")
-#         return result
-#     except HttpError as error:
-#         print(f"An error occurred: {error}")
-#         return error
 
 def update_batches_value(values):
     creds = get_creds()

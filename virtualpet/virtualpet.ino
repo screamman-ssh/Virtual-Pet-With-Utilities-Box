@@ -202,7 +202,7 @@ void display_pet(){
   static unsigned long status_time;
   static bool status;
   //อัพเดตเเละรับข้อมูลผ่าน Odroid-C4 ที่ติดต่่อฐานข้อมูลหรือ Google Sheet
-  if((millis() - update_behave) > 1000){
+  if((millis() - update_behave) > 500){
     update_behave = millis();
     update_data_to_odroid(0);
   }
@@ -447,6 +447,6 @@ void update_data_to_odroid(uint8_t mode){
       }
     }
   }
-  
 }
+
 

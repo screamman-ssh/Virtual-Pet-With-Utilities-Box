@@ -150,3 +150,4 @@ void spawn_food(){
   food_y = random(15);
   food_empty = 0;
 }
+
