@@ -4,7 +4,7 @@
 <p align="center">
     <img width="30%" src="https://github.com/screamman-ssh/Virtual-Pet-With-Utilities-Box/assets/77887797/720e2cb3-3069-4b31-bb9b-7d4f01ebe654">
 </p>
-An embedded project for our embedded course inspired by the [Tamagotchi](https://en.wikipedia.org/wiki/Tamagotchi) game to a 16x16 LED pixel display virtual pet (cat) with useful tools, clock, weather, calendar and game. The virtual pet can be controlled online via the LINE application using Google AppScript as a webhook. The project was implemented with esp32 and Odroid-C4 (Optional), it's just a requirement from the course but you can use only esp32 to operate all functions.
+An embedded project for our embedded course inspired by the Tamagotchi game to a 16x16 LED pixel display virtual pet (cat) with useful tools, clock, weather, calendar and game. The virtual pet can be controlled online via the LINE application using Google AppScript as a webhook. The project was implemented with esp32 and Odroid-C4 (Optional), it's just a requirement from the course but you can use only esp32 to operate all functions.
 
 ## Functions and Features
 
