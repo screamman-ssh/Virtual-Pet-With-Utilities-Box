@@ -1,5 +1,5 @@
-var CHANNEL_ACCESS_TOKEN = 'K60vgYr6Ks9ut4badfSLLkSAPqJgykcPPEQldA/E+I5o354aWooJnyu1QKc5k5cfAhnsbwyLl7LNg/XrNrJgOojmpODClsI69wTK81hq3QoXzS76BtdJU2X1GWuzThcQRMjwDa8KPJjmwXXxmcxeXgdB04t89/1O/w1cDnyilFU='; 
-var sheet_url = "https://docs.google.com/spreadsheets/d/1ZCuj0-3AKcwWawn5OAm4ufcgzkuO6D-n8VyA_kbY0GU/edit";
+var CHANNEL_ACCESS_TOKEN = ""; 
+var sheet_url = "";
 
 var sheet_name = "Sheet1";
 var line_endpoint = 'https://api.line.me/v2/bot/message/reply';
